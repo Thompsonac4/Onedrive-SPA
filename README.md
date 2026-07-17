@@ -1,7 +1,7 @@
 # Onedrive-SPA
 A Microsoft 365–integrated web app for browsing and uploading jobsite documents straight from OneDrive/SharePoint — built for real-world use by an active company.
 
-Designed and Built by:
+Designed and Built by:  
 Austin Thompson (github.com/thompson.ac) & Michael Cornelison (github.com/mariosoniczero)
 
 ## Description
