@@ -5,7 +5,7 @@ Designed and Built by:
  [Austin Thompson](https://github.com/thompsonac4) & [Michael Cornelison](https://github.com/mariosoniczero)   
 
 ## Description
-Field and office teams often have jobsite photos, reports, and spreadsheets scattered across OneDrive folders. Jobsite Files gives them a single, clean interface to sign in with their Microsoft account and drill down from jobsite → folder → date to instantly view every file in that location — no downloading, no digging through the OneDrive web UI.
+Field and office teams often have jobsite photos, reports, and spreadsheets scattered across OneDrive folders. Jobsite Files gives them a single, clean interface to sign in with their Microsoft account and drill down from jobsite → folder → date to instantly view every file in that location, no downloading, no digging through the OneDrive web UI.
 
 This project is being designed to be integrated into a real work environment designed for a specific company. It is made to integrating directly with their production Microsoft 365 environment.
 
