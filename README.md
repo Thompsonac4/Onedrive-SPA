@@ -19,7 +19,7 @@ Production-minded config — all tenant and client IDs live in environment varia
 React 19 · Vite · @azure/msal-browser + @azure/msal-react · Microsoft Graph API · React-Bootstrap · MUI
 
 ## Example Photos
-![Example of Photo Formats(Photos/Website-Photos.png) ![Example of File Formats](Photos/Website-Files.png)
+![Example of Photo Formats](Photos/Website-Photos.png) ![Example of File Formats](Photos/Website-Files.png)
 
 What We Learned
 Because this was built for an actual company rather than a sandbox, We had to account for a real Microsoft 365 tenant, real permissions, and non-technical end users. The trickiest part was authentication: getting MSAL's popup/redirect handshake to complete reliably (including MSAL 5's redirect-bridge requirement and a Vite dependency-reload race) taught me a lot about the OAuth authorization-code flow for SPAs. On the data side, I learned to distinguish MSAL (identity + tokens) from Microsoft Graph (the actual file operations), and how to render Office documents without triggering downloads.
