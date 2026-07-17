@@ -1,7 +1,8 @@
 # Onedrive-SPA
 A Microsoft 365–integrated web app for browsing and uploading jobsite documents straight from OneDrive/SharePoint — built for real-world use by an active company.
 
-Designed and Built by Austin Thompson (github.com/thompson.ac) & Michael Cornelison (github.com/mariosoniczero)
+Designed and Built by:
+Austin Thompson (github.com/thompson.ac) & Michael Cornelison (github.com/mariosoniczero)
 
 ## Description
 Field and office teams often have jobsite photos, reports, and spreadsheets scattered across OneDrive folders. Jobsite Files gives them a single, clean interface to sign in with their Microsoft account and drill down from jobsite → folder → date to instantly view every file in that location — no downloading, no digging through the OneDrive web UI.
