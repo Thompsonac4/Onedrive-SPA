@@ -1,0 +1,189 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+body {
+  background: #f4f6f8;
+  padding: 30px;
+}
+
+.container {
+  max-width: 1000px;
+  margin: auto;
+}
+
+h1 {
+  text-align: center;
+  margin-bottom: 30px;
+  color: #223344;
+}
+
+.card {
+  background: white;
+  border-radius: 12px;
+  padding: 25px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.card h2 {
+  margin-bottom: 18px;
+  color: #2c3e50;
+  font-size: 22px;
+}
+
+/* --- Dropdowns (react-bootstrap) styled like the example <select> --- */
+.JobsiteDropdown .dropdown,
+.DateDropdown .dropdown {
+  width: 100%;
+}
+
+.JobsiteDropdown .dropdown-toggle,
+.DateDropdown .dropdown-toggle {
+  width: 100%;
+  padding: 16px;
+  font-size: 18px;
+  text-align: left;
+  background: #1976d2;
+  border: none;
+}
+
+.JobsiteDropdown .dropdown-menu,
+.DateDropdown .dropdown-menu {
+  width: 100%;
+}
+
+/* Sign-in button */
+.JobsiteDropdown .btn-primary {
+  padding: 14px 24px;
+  font-size: 18px;
+}
+
+/* --- Folder tabs (react-bootstrap Tabs) --- */
+.card .nav-tabs {
+  border: none;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.card .nav-tabs .nav-item {
+  flex: 1;
+  min-width: 120px;
+}
+
+.card .nav-tabs .nav-link {
+  width: 100%;
+  border: none;
+  border-radius: 8px;
+  background: #e8ecf1;
+  color: #2c3e50;
+  padding: 14px;
+  font-size: 16px;
+}
+
+.card .nav-tabs .nav-link.active {
+  background: #1976d2;
+  color: white;
+}
+
+/* --- Carousel --- */
+.carousel {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+}
+
+.arrow {
+  width: 60px;
+  height: 60px;
+  flex: 0 0 auto;
+  border: none;
+  border-radius: 50%;
+  background: #1976d2;
+  color: white;
+  font-size: 28px;
+  cursor: pointer;
+}
+
+.arrow:hover {
+  background: #125a9e;
+}
+
+.arrow:disabled {
+  background: #b0bec5;
+  cursor: default;
+}
+
+/* Horizontal strip that holds every file and scrolls sideways */
+.gallery-track {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  gap: 16px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding-bottom: 10px;
+  scroll-snap-type: x proximity;
+}
+
+.gallery-item {
+  flex: 0 0 auto;
+  width: 320px;
+  scroll-snap-align: start;
+  text-align: center;
+}
+
+.gallery-media img,
+.gallery-media iframe {
+  width: 320px;
+  height: 240px;
+  object-fit: contain;
+  border-radius: 10px;
+  border: 1px solid #ddd;
+  background: #fff;
+}
+
+.gallery-name {
+  margin-top: 10px;
+  font-size: 15px;
+  word-break: break-word;
+}
+
+/* Placeholder tile for files we don't render inline */
+.file-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  width: 320px;
+  height: 240px;
+  border: 1px dashed #bbb;
+  border-radius: 10px;
+  background: #fafbfc;
+}
+
+.file-icon {
+  font-size: 64px;
+}
+
+.file-placeholder a {
+  color: #1976d2;
+  font-size: 16px;
+}
+
+.carousel-empty {
+  text-align: center;
+  color: #7a8894;
+  padding: 40px 0;
+  font-size: 18px;
+}
+
+/* --- Upload --- */
+.upload {
+  text-align: center;
+}
