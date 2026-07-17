@@ -1,5 +1,5 @@
 # Onedrive-SPA
-A Microsoft 365–integrated web app for browsing and uploading jobsite documents straight from OneDrive/SharePoint — built for real-world use by an active company.
+A Microsoft 365–integrated web app for browsing and uploading jobsite documents straight from OneDrive/SharePoint. Built for real-world use by an active company.
 
 Designed and Built by:  
  [Austin Thompson](https://github.com/thompsonac4) & [Michael Cornelison](https://github.com/mariosoniczero)   
@@ -12,9 +12,9 @@ This project is being designed to be integrated into a real work environment des
 ## Highlights
 Secure Microsoft sign-in using MSAL with a full-page redirect flow and a dedicated redirect-bridge page, wrapped in a reusable AuthService class that handles login, logout, and silent token refresh.
 Live OneDrive/SharePoint integration via the Microsoft Graph API — jobsites, subfolders, and dates are all pulled dynamically from the user's drive.
-Universal file previews — images and PDFs render inline, while Word, Excel, and PowerPoint files display through the Graph preview endpoint instead of force-downloading to the browser.
+Universal file previews: images and PDFs render inline, while Word, Excel, and PowerPoint files display through the Graph preview endpoint instead of force-downloading to the browser.
 Horizontal gallery that loads every file in a folder at once and scrolls sideways for large sets.
-Production-minded config — all tenant and client IDs live in environment variables, kept out of source control.  
+Production-minded config: all tenant and client IDs live in environment variables, kept out of source control.  
 
 ## Tech Stack
 React 19 · Vite · @azure/msal-browser + @azure/msal-react · Microsoft Graph API · React-Bootstrap · MUI  
