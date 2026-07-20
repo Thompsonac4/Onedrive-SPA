@@ -1,0 +1,15 @@
+{
+  "navigationFallback": {
+    "rewrite": "/index.html",
+    "exclude": ["/auth.html", "/assets/*", "/*.{css,js,ico,png,jpg,jpeg,gif,svg,webp}"]
+  },
+  "routes": [
+    {
+      "route": "/auth.html",
+      "rewrite": "/auth.html"
+    }
+  ],
+  "mimeTypes": {
+    ".json": "application/json"
+  }
+}
