@@ -1,0 +1,79 @@
+.viewer {
+    position: fixed;
+    top:0;
+    left:0;
+    width:100vw;
+    height:100vh;
+    background: rgba(0,0,0,0.95);
+    z-index:999999;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+}
+.swiper-slide {
+    display:flex;
+    justify-content:center;
+    align-items:center;
+}
+.swiper {
+    width:100%;
+    height:100%;
+}
+.swiper-slide img{
+    max-width:90vw;
+    max-height:90vh;
+    object-fit:contain;
+}
+.document-viewer{
+    width:90vw;
+    height:90vh;
+    border:none;
+    background:white;
+}
+.close{
+    position: absolute;
+    right: 30px;
+    top:20px;
+    z-index:10;
+    font-size:30px;
+    background:none;
+    color:white;
+    border: none;
+}
+.thumbnail-strip {
+    display: flex;
+    flex-direction: row;
+    gap: 15px;
+    overflow-x: auto;
+    width: 100%;
+    padding: 15px;
+    align-items: center;
+}
+.thumbnail {
+    flex: 0 0 auto;
+    width: 250px;
+    height: 180px;
+    border-radius: 10px;
+    overflow: hidden;
+    cursor: pointer;
+    background: #222;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+.thumbnail img {
+    width: 100%;
+    height: 140px;
+    object-fit: cover;
+    display: block;
+}
+.thumbnail p {
+    color: white;
+    font-size: 14px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    width: 90%;
+    text-align:center;
+}

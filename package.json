@@ -1,9 +1,38 @@
 {
+  "name": "azure-react",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host",
+    "build": "node ./node_modules/vite/bin/vite.js build",
+    "lint": "oxlint",
+    "preview": "vite preview"
+  },
   "dependencies": {
     "@azure/msal-browser": "^5.17.0",
     "@azure/msal-react": "^5.5.2",
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.1",
+    "@mui/icons-material": "^9.2.0",
+    "@mui/material": "^9.2.0",
+    "bootstrap": "^5.3.8",
+    "photoswipe": "^5.4.4",
     "react": "^19.2.7",
     "react-bootstrap": "^2.10.10",
-    "react-dom": "^19.2.7"
+    "react-datepicker": "^9.1.0",
+    "react-dom": "^19.2.7",
+    "react-photoswipe-gallery": "^4.1.2",
+    "react-slick": "^0.31.0",
+    "slick-carousel": "^1.8.1",
+    "swiper": "^14.0.6"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.17",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-basic-ssl": "^2.3.0",
+    "@vitejs/plugin-react": "^6.0.3",
+    "oxlint": "^1.71.0",
+    "vite": "^8.1.1"
   }
 }
