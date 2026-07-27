@@ -50,7 +50,7 @@ React 19 · Vite · `@azure/msal-browser` + `@azure/msal-react` · Microsoft Gra
 
 Users sign in with their work Microsoft account. Auth uses MSAL’s redirect flow through `/auth.html`, then returns to the app. Tokens are refreshed silently for Graph calls.
 
-![Home Screen](Photos/HomeScreen.png)
+<img src="Photos/HomeScreen.png" alt="Home Screen" width="250" />
 
 ---
 
@@ -75,7 +75,7 @@ Once a date folder is selected, every file loads into a horizontal thumbnail str
 
 Click a photo thumbnail to open the full-screen viewer (`fileviewer.jsx` + `fileslide.jsx`). Navigate with on-screen arrows or keyboard (← → Esc). Images are loaded via Graph and shown inline.
 
-![Photo viewer lightbox](Photos/PhotoLightbox.png)
+<img src="Photos/PhotoLightbox.png" alt="Photo viewer lightbox" width="250" />
 
 ---
 
@@ -84,7 +84,7 @@ Click a photo thumbnail to open the full-screen viewer (`fileviewer.jsx` + `file
 Videos use a streamable OneDrive/SharePoint download URL (not a full blob download), then play with native HTML5 controls in the same lightbox. Only one file is mounted at a time so playback stays stable next to Office previews.
 
 
-![Video viewer with controls](Photos/VideoPlayback.png)
+<img src="Photos/VideoPlayback.png" alt="Video viewer with controls" width="250" />
 
 ---
 
@@ -93,8 +93,8 @@ Videos use a streamable OneDrive/SharePoint download URL (not a full blob downlo
 PDFs and Office documents open through Microsoft Graph’s **preview** action and render in an iframe (Office Online–style viewer) instead of triggering a browser download.
 
 
-![PDF or Office document preview](Photos/Word.png)
-![Excel document preview](Photos/Excel.png)
+<img src="Photos/Word.png" alt="PDF or Office document preview" width="250" />
+<img src="Photos/Excel.png" alt="Excel document preview" width="250" />
 
 ---
 
@@ -107,9 +107,9 @@ Users pick files, choose an existing date folder (or create one), and upload wit
 - Several files can upload concurrently without one failure stopping the batch
 
 
-![Upload — select files and destination folder](Photos/UploadSelection.png)
+<img src="Photos/UploadSelection.png" alt="Upload — select files and destination folder" width="250" />
 
-![Upload — progress](Photos/FilesUploading.png)
+<img src="Photos/FilesUploading.png" alt="Upload — progress" width="250" />
 
 
 ---
@@ -119,7 +119,7 @@ Users pick files, choose an existing date folder (or create one), and upload wit
 From the date dropdown or upload flow, **Add New Date** opens a calendar. Choosing a day builds a folder name (`MM-D-YY`) and creates that folder in OneDrive via Graph so uploads and browsing can target it immediately.
 
 
-![Calendar — pick a new date](Photos/CalendarFolder.png)
+<img src="Photos/CalendarFolder.png" alt="Calendar — pick a new date" width="250" />
 
 
 ---
@@ -129,7 +129,7 @@ From the date dropdown or upload flow, **Add New Date** opens a calendar. Choosi
 From the file viewer, users can delete the current file. Graph deletes the drive item; the app shows a confirmation/status modal and refreshes the gallery.
 
 
-![Delete file confirmation](Photos/DeleteFiles.png)
+<img src="Photos/DeleteFiles.png" alt="Delete file confirmation" width="250" />
 
 ---
 
@@ -138,7 +138,7 @@ From the file viewer, users can delete the current file. Graph deletes the drive
 From the viewer edit controls, users can rename a file (extension preserved) via a Graph `PATCH` on the drive item.
 
 
-![Rename file in the viewer](Photos/ChangeName.png)
+<img src="Photos/ChangeName.png" alt="Rename file in the viewer" width="250" />
 
 ---
 
@@ -243,7 +243,3 @@ On the data side, we learned to distinguish **MSAL** (identity + tokens) from **
 Shipping delete, rename, and calendar-driven date folders pushed the app from “viewer” to a day-to-day field tool — with UI flows that stay understandable for people who live in OneDrive, not in DevTools.
 
 ---
-<<<<<<< HEAD
->>>>>>> Stashed changes
-=======
->>>>>>> a4361ec618b2968fe6ab39193148a5315194ae99
