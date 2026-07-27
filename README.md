@@ -92,10 +92,10 @@ Videos use a streamable OneDrive/SharePoint download URL (not a full blob downlo
 
 PDFs and Office documents open through Microsoft Graph’s **preview** action and render in an iframe (Office Online–style viewer) instead of triggering a browser download.
 
-
-<img src="Photos/Word.png" alt="PDF or Office document preview" width="250" />
-<img src="Photos/Excel.png" alt="Excel document preview" width="250" />
-
+<p float="left">
+   <img src="Photos/Word.png" alt="PDF or Office document preview" width="250" />
+   <img src="Photos/Excel.png" alt="Excel document preview" width="250" />
+</p>
 ---
 
 ### 7. Upload files (`upload.jsx`, `upload-session.jsx`)
@@ -106,11 +106,10 @@ Users pick files, choose an existing date folder (or create one), and upload wit
 - **Large files** (e.g. videos) → `createUploadSession` + chunked upload with retries
 - Several files can upload concurrently without one failure stopping the batch
 
-
-<img src="Photos/UploadSelection.png" alt="Upload — select files and destination folder" width="250" />
-
-<img src="Photos/FilesUploading.png" alt="Upload — progress" width="250" />
-
+<p float="left">
+   <img src="Photos/UploadSelection.png" alt="Upload — select files and destination folder" width="250" />
+   <img src="Photos/FilesUploading.png" alt="Upload — progress" width="250" />
+</p>
 
 ---
 
