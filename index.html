@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Uwharrie Builders</title>
+
+    <!-- Cache-bust so phones pick up the new opaque icon -->
+    <link rel="icon" href="/favicon.svg?v=3" type="image/svg+xml" />
+    <link rel="shortcut icon" href="/favicon.svg?v=3" />
+
+    <!--
+      Home-screen icons MUST be opaque PNGs (no transparency).
+      Put these in /public (full-bleed brand color background, no rounded corners):
+        apple-touch-icon.png  → 180×180
+        icon-192.png          → 192×192
+        icon-512.png          → 512×512
+    -->
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=3" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="Jobsite Files" />
+    <meta name="mobile-web-app-capable" content="yes" />
+
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <meta name="theme-color" content="#1976d2" />
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>
