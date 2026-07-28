@@ -4,9 +4,9 @@ import { MsalProvider } from "@azure/msal-react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./index.css";
 
-import { authService } from "./authService.js";
+import { authService } from "@/auth/authService.js";
 import App from "./App.jsx";
-import "./App.css"
+import "./App.css";
 
 async function start() {
   // initialize() boots MSAL and completes any pending redirect login
