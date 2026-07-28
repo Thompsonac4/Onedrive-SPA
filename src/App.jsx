@@ -1,16 +1,16 @@
 import React from 'react';
 import { useState, useEffect } from "react";
-import LoginButton from "./login-button.jsx";
-import YearDropdown from "./year-dropdown.jsx";
-import JobsiteDropdown from "./jobsite-dropdown.jsx";
-import SubfolderTabs from "./subfolder-tabs.jsx";
-import DateDropdown from "./date-dropdown.jsx";
-import ImageContainer from "./imagecontainer.jsx";
-import Upload from "./upload.jsx";
-import CalendarSelection from "./calendar-selection.jsx";
+import LoginButton from "@/auth/login-button.jsx";
+import YearDropdown from "@/navigation/year-dropdown.jsx";
+import JobsiteDropdown from "@/navigation/jobsite-dropdown.jsx";
+import SubfolderTabs from "@/navigation/subfolder-tabs.jsx";
+import DateDropdown from "@/navigation/date-dropdown.jsx";
+import ImageContainer from "@/files/imagecontainer.jsx";
+import Upload from "@/upload/upload.jsx";
+import CalendarSelection from "@/navigation/calendar-selection.jsx";
 import Modal from "react-bootstrap/Modal";
 import {Button} from "@mui/material";
-import pathManager from "./pathmanager.js";
+import pathManager from "@/services/pathmanager.js";
 
 
 

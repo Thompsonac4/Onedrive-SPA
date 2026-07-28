@@ -146,13 +146,11 @@ From the viewer edit controls, users can rename a file (extension preserved) via
 | Area | Main files |
 | --- | --- |
 | App shell | `src/App.jsx`, `src/main.jsx` |
-| Auth | `src/authService.js`, `src/login-button.jsx`, `src/msal-config.jsx`, `auth.html` |
-| Navigation | `year-dropdown.jsx`, `jobsite-dropdown.jsx`, `subfolder-tabs.jsx`, `date-dropdown.jsx` |
-| Paths / events | `src/pathmanager.js` |
-| Gallery & viewer | `imagecontainer.jsx`, `filethumbnail.jsx`, `fileviewer.jsx`, `fileslide.jsx`, `load-images.jsx` |
-| Upload | `upload.jsx`, `upload-session.jsx`, `date-selection.jsx` |
-| New date folder | `calendar-selection.jsx`, `create-folder.js` |
-| Delete / rename | `delete-item.js`, `change-file-name.js` |
+| Auth | `src/auth/` (`authService.js`, `login-button.jsx`, `msal-config.jsx`, `auth-redirect.js`) + root `auth.html` |
+| Navigation | `src/navigation/` (year, jobsite, subfolder tabs, dates, calendar) |
+| Paths / Graph helpers | `src/services/` (`pathmanager.js`, create/delete/rename, etc.) |
+| Gallery & viewer | `src/files/` |
+| Upload | `src/upload/` |
 
 Deeper notes: [`AUTH.md`](./AUTH.md) · [`UPLOAD.md`](./UPLOAD.md)
 
