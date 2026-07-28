@@ -92,6 +92,7 @@ export default function FileViewer({ files, startIndex, close }) {
     try {
       await ChangeFileName(url, name);
       window.dispatchEvent(new CustomEvent("imagesChanged", {}));
+      window.dispatchEvent(new CustomEvent("deletionStatus", {detail: {fileName: name, message: " Was Changed Successfully"}}));
     }
     catch (error) {
       console.error("Change name failed: ", error)
