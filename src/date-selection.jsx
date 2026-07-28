@@ -16,6 +16,7 @@ export default function DateSelection({ onFolderSelect, setShow}) {
     const [folders, setFolders] = useState([]);
     const [selectedFolder, setSelectedFolder] = useState("Select Date");
     const [uploadFolder, setUploadFolder] = useState("");
+    const [folderPermission, setFolderPermission] = useState(false);
     
     // State Variables for progress
     const [loading, setLoading] = useState(false);
@@ -25,23 +26,27 @@ export default function DateSelection({ onFolderSelect, setShow}) {
     //Effect to refresh folders
     useEffect(() => {
         async function updateFolders(event) {
-            console.log(event);
+           
+            console.log("Date Selection: ", event);
             if (authService.isAuthenticated()) {
                 if(!event){
+                    handleSelect(pathManager.datePathName);
                     await loadFolders();
+                    setFolderPermission(pathManager.folderPermission);
                     return;
                 }
-                if (event.type === "folderCreated" && event.detail !== "default") {
-                    console.log(event.detail);
+                else if(event.type === "folderCreated" && event.detail !== "default") {
+                    console.log("Folder Created:" + event.detail);
                     handleSelect(event.detail);
                     await loadFolders();
                 }
-                else {
-                    defaultDate = await false;
-                    await loadFolders();
-                }
+                // else {
+                //     defaultDate = await false;
+                //     await loadFolders();
+                // }
             }
         }
+
         // Load immediately
         updateFolders();
         
@@ -93,7 +98,11 @@ export default function DateSelection({ onFolderSelect, setShow}) {
 
             if (dateList.length > 0 && !defaultDate) {
                 defaultDate = true;
-                handleSelect(dateList[0]);   // Sets selectedDate and updates pathManager
+               if (pathManager.datePathName && dateList.includes(pathManager.datePathName)) {
+                    handleSelect(pathManager.datePathName);
+                } else {
+                    handleSelect(dateList[0]);
+                }
             }
             
 
@@ -111,6 +120,7 @@ export default function DateSelection({ onFolderSelect, setShow}) {
         //Create folderpath for selection to load images and get the child path
         const MainUrl = `${pathManager.datePath}`;
         pathManager.uploadFolderName = folder;
+        console.log("Selected Folder 1-1-1 "+ folder);
         setUploadFolder(`${MainUrl.replace(':/children', '')}/${folder}:/children`);
         pathManager.uploadPath = `${MainUrl.replace(':/children', '')}/${folder}`;
         onFolderSelect?.(folder);
@@ -154,9 +164,9 @@ export default function DateSelection({ onFolderSelect, setShow}) {
                             </Dropdown.Item>
                         ))
                     )}
-                    <Dropdown.Item href="#/action-1" className="text-primary" onClick={() => handleShowCalendar()}>
+                    {folderPermission && <Dropdown.Item href="#/action-1" className="text-primary" onClick={() => handleShowCalendar()}>
                         Add New Date
-                    </Dropdown.Item>
+                    </Dropdown.Item>}
                 </Dropdown.Menu>
             </Dropdown>
         </div>

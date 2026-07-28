@@ -48,8 +48,8 @@ export default function App() {
           setCalendarLocation(event.detail);
           setShowingCalendar(true);
       }
-      async function uploadEvent(){
-        setShowUpload(true);
+      async function uploadEvent(event){
+        setShowUpload(event.detail);
       }
       async function folderEvent(){
         setShowFolder(true);
@@ -68,14 +68,14 @@ export default function App() {
     
       // Listen for future changes
       window.addEventListener("showCalendar", calendarEvent);
-      window.addEventListener("showUpload", uploadEvent);
+      window.addEventListener("uploadPermissionChanged", uploadEvent);
       window.addEventListener("showFolder", folderEvent);
       window.addEventListener("showDates", datesEvent);
       window.addEventListener("showFiles", filesEvent);
       window.addEventListener("deletionStatus", deletionStatusEvent);
       return () => {
           window.removeEventListener("showCalendar",calendarEvent);
-          window.removeEventListener("showUpload", uploadEvent);
+          window.removeEventListener("uploadPermissionChanged", uploadEvent);
           window.removeEventListener("showFolder", folderEvent);
           window.removeEventListener("showDates", datesEvent);
           window.removeEventListener("showFiles", filesEvent);

@@ -11,6 +11,8 @@ class PathManager {
             this._uploadPath = "";
             this._uploadFolderName = "";
             this._deletedName = "";
+            this._datePathName = "";
+            this._folderPermission = false;
             // Singleton instance
             this.instance = this;
         }
@@ -134,7 +136,38 @@ class PathManager {
 
         return this._deletedName;
     }
+    set datePathName(newPath) {
+        // console.log(
+        //     "PathManager: Setting path to",
+        //     newPath
+        // );
+        this._datePathName = newPath;
+    }
 
+    get datePathName() {
+        // console.log(
+        //     "PathManager: Getting path:",
+        //     this.path
+        // );
+
+        return this._datePathName;
+    }
+    set folderPermission(newPath) {
+        // console.log(
+        //     "PathManager: Setting path to",
+        //     newPath
+        // );
+        this._folderPermission = newPath;
+    }
+
+    get folderPermission() {
+        // console.log(
+        //     "PathManager: Getting path:",
+        //     this.path
+        // );
+
+        return this._folderPermission;
+    }
 }
 
 const pathManager = new PathManager();

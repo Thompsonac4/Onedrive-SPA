@@ -4,6 +4,7 @@ import Modal from "react-bootstrap/Modal";
 import DatePicker from "react-datepicker";
 import { Button } from "@mui/material";
 import { CreateFolder } from "./create-folder";
+import pathManager from "./pathmanager";
 
 export default function CalendarSelection({ location, onClose }) {
   const [uploadNewDate, setUploadNewDate] = useState(new Date());
@@ -34,6 +35,9 @@ export default function CalendarSelection({ location, onClose }) {
   }
 
   const handleCreateFolder = async () => {
+    if (dateString === "") {
+      handleSelect(uploadNewDate);
+    }
     const name = dateString;
     const success = await CreateFolder(name);
     if (location === "DateDropdown") {
@@ -41,8 +45,9 @@ export default function CalendarSelection({ location, onClose }) {
       window.dispatchEvent(new CustomEvent("folderChanged", { detail: name }));
     } else if (location === "UploadModal") {
       console.log("Going to Upload")
-      window.dispatchEvent(new CustomEvent("folderCreated", { detail: name }));
+      pathManager.datePathName = name;
       window.dispatchEvent(new CustomEvent("dateAdded", { detail: "calendar" }));
+      window.dispatchEvent(new CustomEvent("folderChanged", { detail: name }));
     }
     onClose?.();
   };

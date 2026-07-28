@@ -86,12 +86,24 @@ export default function FileViewer({ files, startIndex, close }) {
   }
   async function changeName() {
     const url = await `https://graph.microsoft.com/v1.0/drives/${driveId}/items/${files[index].id}`;
-    const ext = files[index].name.substring(files[index].name.lastIndexOf('.') + 1);
-    const name = newName+'.'+ext;
+    const oldName = files[index].name;
+    let name = "";
+    const extIndex = files[index].name.lastIndexOf('.');
+    
+    if (extIndex !== -1) {
+      const ext = files[index].name.substring(extIndex + 1);
+      name = newName + '.' + ext;
+    }
+    else {
+      name = newName;
+    }
+    
     console.log(name);
     try {
       await ChangeFileName(url, name);
       window.dispatchEvent(new CustomEvent("imagesChanged", {}));
+      window.dispatchEvent(new CustomEvent("deletionStatus", {detail: {fileName: oldName, message: ` Was Changed to ${name} Successfully`}}));
+      close();
     }
     catch (error) {
       console.error("Change name failed: ", error)
