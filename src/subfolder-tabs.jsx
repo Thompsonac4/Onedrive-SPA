@@ -1,4 +1,8 @@
 import { useState, useEffect } from 'react';
+import { useMsal, useIsAuthenticated } from "@azure/msal-react";
+import { authService } from "./authService.js";
+import { graphConfig } from "./msal-config.jsx";
+import { handleDriveId } from "./handleDriveId.jsx";
 import Tab from 'react-bootstrap/Tab';
 import Tabs from 'react-bootstrap/Tabs';
 import { fetchFolderNames } from "./load-folders.jsx";
@@ -60,7 +64,13 @@ function SubfolderTabs() {
         loadFolders();
 
     }, [homeTabName]);
-
+    async function setCreationPermission(){
+        const permissionCheck = await checkUploadPermission(`${pathManager.Path.replace(':/children', '')}/${key}:/permissions`);
+        console.log("folder Permission Check: " + permissionCheck);
+        window.dispatchEvent(new CustomEvent("folderCreationPermissionChanged", {detail: permissionCheck}));
+        pathManager.folderPermission = permissionCheck;
+        window.dispatchEvent(new CustomEvent("folderCreationPermission", { detail:  permissionCheck }));
+    }
     /*
         Update imagePath ONLY when the active tab changes.
 
@@ -78,12 +88,43 @@ function SubfolderTabs() {
         else {
             // Selected subfolder
             pathManager.datePath = `${pathManager.Path.replace(':/children', '')}/${key}:/children`;
+            setCreationPermission();
             window.dispatchEvent(new CustomEvent("folderChanged", { detail: "default" }));
             window.dispatchEvent(new CustomEvent("showDates", {}));
+            
         }
         //console.log("Subfolder: Updated date path:", pathManager.datePath);
         
     }, [key]);
+    
+    async function checkUploadPermission(folderName){
+            try{
+                const accessToken = await authService.getAccessToken();
+                console.log("Folder Path "+ folderName);
+                const folderPermissionsUrl = folderName;
+                
+
+                const response = await fetch(folderPermissionsUrl, {
+                    headers: {
+                        Authorization: `Bearer ${accessToken}`,
+                    },
+                });
+    
+                if (!response.ok){
+                    console.error("permission check failed:", response.status);
+                    return false;
+                }
+    
+                const data = await response.json();
+    
+                const canWrite = data.value.some(permission => permission.roles?.includes("write"));
+                
+                return canWrite;
+                } catch (error){
+                    console.error("Upload Permission Error: ", error);
+                    return false;
+                }
+        }
 
 
     return (

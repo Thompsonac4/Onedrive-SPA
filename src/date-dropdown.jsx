@@ -19,6 +19,8 @@ export default function DateDropdown({ onFolderSelect }) {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const [warning, setWarning] = useState(null);
+    const [createPermission, setCreatePermission] = useState(false);
+
 
     //Effect Handler for the parent folder changing so we reload the date selection
     useEffect(() => {
@@ -36,13 +38,28 @@ export default function DateDropdown({ onFolderSelect }) {
                 }
             }
         }
+        async function reloadFolders() {
+            //console.log(event);
+            if (authService.isAuthenticated()) {
+                handleSelect(pathManager.uploadFolderName);
+                await loadFolders();
+            }
+        }
+        async function checkPermission(event) {
+            console.log("Folder Permission: " + event.detail);
+            setCreatePermission(event.detail);
+        }
         
         // Load immediately
         updateFolders();
         // Listen for future changes
         window.addEventListener("folderChanged", updateFolders);
+        window.addEventListener("reloadFolders", reloadFolders);
+        window.addEventListener("folderCreationPermission", checkPermission);
         return () => {
             window.removeEventListener("folderChanged", updateFolders);
+            window.removeEventListener("reloadFolders", reloadFolders);
+            window.removeEventListener("folderCreationPermission", checkPermission);
         };
     }, []);
 
@@ -76,12 +93,45 @@ export default function DateDropdown({ onFolderSelect }) {
             }
 
             const data = await response.json();
-            const dateList = data.value.filter((item) => item.folder).map((item) => item.name);
+            const dateList = await Promise.all(data.value
+                .filter((item) => item.folder)
+                .map(async (item) => {
+                    const folderUrl = 
+                    `${pathManager.datePath.replace(":/children", "")}/${encodeURIComponent(item.name)}:/children`;
+
+                    try {
+                        const folderResponse = await fetch(folderUrl,{
+                            headers: {
+                                Authorization: `Bearer ${accessToken}`,
+
+                            },
+                        });
+                        const folderData = await folderResponse.json();
+
+                        return {
+                            name: item.name,
+                            hasFiles: (folderData.value ?? []).length > 0,
+                        };
+                    } catch {
+                        return {
+                            name: item.name,
+                            hasFiles: false,
+                        };
+                    }
+                })
+            )
+            dateList.sort((a, b) =>
+                a.name.localeCompare(b.name, undefined, {
+                    numeric: true,
+                    sensitivity: "base",
+                })
+            );
+            console.log(dateList);
             setFolders(dateList);
 
             if (dateList.length > 0 && !defaultDate) {
                 defaultDate = true;
-                handleSelect(dateList[0]);   // Sets selectedDate and updates pathManager
+                handleSelect(dateList[0].name);   // Sets selectedDate and updates pathManager
             }
             else{
                 window.dispatchEvent(new CustomEvent("jobsiteImagesChanged"));
@@ -102,17 +152,20 @@ export default function DateDropdown({ onFolderSelect }) {
     //Selection Handler
     async function handleSelect(folder) {
         setSelectedFolder(folder);
-        // Base path is the currently selected subfolder's children URL.
-        // NOTE: do NOT dispatch "pathChanged" here — that's the jobsite-level
-        // event. Firing it would reset SubfolderTabs to "home" and clobber
-        // pathManager.datePath, breaking the next date selection.
+      
         const MainUrl = `${pathManager.datePath}`;
         pathManager.imagePath = `${MainUrl.replace(':/children', '')}/${folder}:/children`;
-        console.log("DateDropdown: Updated image path:", pathManager.imagePath);
+        pathManager.datePathName = folder;
+        // console.log("DateDropdown: Updated image path:", pathManager.imagePath);
+        
+        const canUpload = await checkUploadPermission(folder);
+
+        window.dispatchEvent(new CustomEvent("uploadPermissionChanged", {detail: canUpload}));
+      
         onFolderSelect?.(folder);
+        
         window.dispatchEvent(new CustomEvent("imagesChanged", { isJobsitePlace: false}));
         window.dispatchEvent(new CustomEvent("showFiles", {}));
-        window.dispatchEvent(new CustomEvent("showUpload", {}));
     }
     if (!authService.isAuthenticated()) {
         return null;
@@ -124,6 +177,34 @@ export default function DateDropdown({ onFolderSelect }) {
         return <div>Error: {error}</div>;
     }
 
+    async function checkUploadPermission(folderName){
+        try{
+            const accessToken = await authService.getAccessToken();
+            
+            const folderPermissionsUrl = 
+                `${pathManager.datePath.replace(":/children", "")}/${encodeURIComponent(folderName)}:/permissions`;
+        
+            const response = await fetch(folderPermissionsUrl, {
+                headers: {
+                    Authorization: `Bearer ${accessToken}`,
+                },
+            });
+
+            if (!response.ok){
+                console.error("permission check failed:", response.status);
+                return false;
+            }
+
+            const data = await response.json();
+
+            const canWrite = data.value.some(permission => permission.roles?.includes("write"));
+            
+            return canWrite;
+            } catch (error){
+                console.error("Upload Permission Error: ", error);
+                return false;
+            }
+    }
     //console.log(folders);
     return (
         <div className="DateDropdown">
@@ -140,16 +221,22 @@ export default function DateDropdown({ onFolderSelect }) {
                     ) : (
                         folders.map((folder) => (
                             <Dropdown.Item
-                                key={folder}
-                                onClick={() => handleSelect(folder)}
+                                key={folder.name}
+                                onClick={() => handleSelect(folder.name)}
+                                style={{
+                                    color: folder.hasFiles ? "":"#999",
+                                    opacity: folder.hasFiles ? 1: 0.6,
+                                    fontStyle: folder.hasFiles ? "normal" : "italic",
+                                }}
                             >
-                                {folder}
+                                {folder.name}
+                                {!folder.hasFiles && " (No Files)"}
                             </Dropdown.Item>
                         ))
                     )}
-                    <Dropdown.Item href="#/action-1" className="text-primary" onClick={() => openCalendar()}>
+                    {createPermission && <Dropdown.Item href="#/action-1" className="text-primary" onClick={() => openCalendar()}>
                         Add New Date
-                    </Dropdown.Item>
+                    </Dropdown.Item>}
                 </Dropdown.Menu>
             </Dropdown>
         </div>

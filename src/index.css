@@ -1,0 +1,323 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+html,
+body {
+  /* Never allow the page itself to scroll sideways (the gallery scrolls, not the page) */
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+body {
+  background: #f4f6f8;
+  padding: 30px;
+}
+
+.container {
+  width: 100%;
+  max-width: 1000px;
+  margin: auto;
+}
+
+.login-error {
+  color: #c0392b;
+  font-size: 13px;
+  margin-top: 6px;
+  max-width: 320px;
+}
+
+.login-hint {
+  color: #6b7785;
+  font-size: 12px;
+  margin-top: 6px;
+  max-width: 320px;
+}
+
+h1 {
+  text-align: center;
+  margin-bottom: 30px;
+  color: #223344;
+}
+
+/* --- Header with title (left) and login (top right) --- */
+.app-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 30px;
+}
+
+.app-header h1 {
+  text-align: left;
+  margin: 0;
+}
+
+.login-area {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.login-user {
+  color: #2c3e50;
+  font-size: 14px;
+}
+
+/* Stack the year dropdown above the jobsite dropdown */
+.YearDropdown {
+  margin-bottom: 12px;
+}
+
+.card {
+  background: white;
+  border-radius: 12px;
+  padding: 25px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.card h2 {
+  margin-bottom: 18px;
+  color: #2c3e50;
+  font-size: 22px;
+}
+
+/* --- Dropdowns (react-bootstrap) styled like the example <select> --- */
+.YearDropdown .dropdown,
+.JobsiteDropdown .dropdown,
+.DateDropdown .dropdown {
+  width: 100%;
+}
+
+.YearDropdown .dropdown-toggle,
+.JobsiteDropdown .dropdown-toggle,
+.DateDropdown .dropdown-toggle {
+  width: 100%;
+  padding: 16px;
+  font-size: 18px;
+  text-align: left;
+  background: #1976d2;
+  border: none;
+}
+
+.YearDropdown .dropdown-menu,
+.JobsiteDropdown .dropdown-menu,
+.DateDropdown .dropdown-menu {
+  width: 100%;
+}
+
+/* --- Folder tabs (react-bootstrap Tabs) --- */
+.card .nav-tabs {
+  border: none;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.card .nav-tabs .nav-item {
+  flex: 1;
+  min-width: 120px;
+}
+
+.card .nav-tabs .nav-link {
+  width: 100%;
+  border: none;
+  border-radius: 8px;
+  background: #e8ecf1;
+  color: #2c3e50;
+  padding: 14px;
+  font-size: 16px;
+}
+
+.card .nav-tabs .nav-link.active {
+  background: #1976d2;
+  color: white;
+}
+
+/* Placeholder tile for files we don't render inline */
+.file-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  width: 100%;
+  height: 240px;
+  border: 1px dashed #bbb;
+  border-radius: 10px;
+  background: #fafbfc;
+}
+
+.file-icon {
+  font-size: 64px;
+}
+
+.file-placeholder a {
+  color: #1976d2;
+  font-size: 16px;
+}
+
+
+/* --- Upload --- */
+.upload {
+  text-align: center;
+}
+.thumbnail {
+    flex: 0 0 250px;
+    width:250px;
+    height:240px;
+    border-radius:10px;
+    border:1px solid #ddd;
+    background:white;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    overflow:hidden;
+    cursor:pointer;
+}
+.thumbnail-strip {
+    display:flex;
+    flex-direction:row;
+    flex-wrap:nowrap;
+    gap:16px;
+    overflow-x:auto;
+    width:100%;
+    padding:10px;
+}
+.thumbnail-image {
+    width:100%;
+    height:180px;
+    object-fit:cover;
+}
+/* ============================================================
+   Responsive / mobile
+   ============================================================ */
+
+/* Tablets and small laptops */
+@media (max-width: 768px) {
+  body {
+    padding: 16px;
+  }
+
+  h1 {
+    font-size: 30px;
+  }
+
+  .card {
+    padding: 18px;
+  }
+
+  .card h2 {
+    font-size: 20px;
+  }
+}
+
+/* Phones */
+@media (max-width: 640px) {
+  body {
+    padding: 12px;
+  }
+
+  .app-header {
+    justify-content: center;
+    text-align: center;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  .app-header h1 {
+    text-align: center;
+    width: 100%;
+    font-size: 26px;
+  }
+
+  .login-area {
+    width: 100%;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .login-user {
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .card {
+    padding: 14px;
+    border-radius: 10px;
+  }
+
+  .card h2 {
+    font-size: 18px;
+    margin-bottom: 14px;
+  }
+
+  /* Dropdowns: smaller touch-friendly padding */
+  .YearDropdown .dropdown-toggle,
+  .JobsiteDropdown .dropdown-toggle,
+  .DateDropdown .dropdown-toggle {
+    padding: 13px;
+    font-size: 16px;
+  }
+
+  /* Folder tabs wrap two-per-row instead of squishing */
+  .card .nav-tabs {
+    gap: 8px;
+  }
+
+  .card .nav-tabs .nav-item {
+    flex: 1 1 calc(50% - 8px);
+    min-width: 0;
+  }
+
+  .card .nav-tabs .nav-link {
+    padding: 12px 8px;
+    font-size: 14px;
+  }
+
+  /* Carousel: smaller arrows, one tile visible with a peek */
+  .carousel {
+    gap: 8px;
+  }
+
+  .arrow {
+    width: 44px;
+    height: 44px;
+    font-size: 20px;
+  }
+
+  .gallery-item {
+    width: 78vw;
+    max-width: 78vw;
+  }
+
+  .thumbnail,
+  .file-placeholder {
+    height: 200px;
+  }
+
+  .file-icon {
+    font-size: 48px;
+  }
+}
+
+/* Very small phones */
+@media (max-width: 380px) {
+  .app-header h1 {
+    font-size: 22px;
+  }
+
+  .arrow {
+    width: 38px;
+    height: 38px;
+    font-size: 18px;
+  }
+}

@@ -67,7 +67,10 @@ export default function JobsiteDropdown() {
 
       const data = await response.json();
       setFolders(
-        (data.value || []).filter((item) => item.folder).map((item) => item.name)
+        (data.value || [])
+        .filter((item) => item.folder)
+        .map((item) => item.name)
+        .sort((a, b) => a.localeCompare(b, undefined, { numeric: true, sensitivity: "base",}))
       );
     } catch (err) {
       console.error(err);

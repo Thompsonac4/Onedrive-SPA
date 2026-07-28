@@ -175,6 +175,7 @@ export default function UploadButtons() {
 
     // Refresh the gallery ONCE, after everything finished
     window.dispatchEvent(new CustomEvent("imagesChanged"));
+    window.dispatchEvent(new CustomEvent("reloadFolders"));
 
     setUploading(false);
     setSelectedFiles([]);
