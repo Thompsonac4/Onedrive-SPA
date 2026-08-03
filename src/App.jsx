@@ -183,12 +183,6 @@ export default function App() {
       <div className="app-header">
         <h1>📁 Jobsite Files</h1>
         <LoginButton />
-        
-        {showJobs && <ThemeProvider theme={theme}>
-              <Button size="small" variant="contained" color="reloadButton" onClick={() =>window.dispatchEvent(new CustomEvent("reloadJobsites", {}))} >
-                Reload Jobsites
-              </Button>
-            </ThemeProvider>}
       </div>
 
       {showJobs && <section className="card jobsite-selection-card">
