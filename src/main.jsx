@@ -2,6 +2,7 @@ import { createRoot } from "react-dom/client";
 import { MsalProvider } from "@azure/msal-react";
 
 import "bootstrap/dist/css/bootstrap.min.css";
+import { Navbar, Nav, Container } from 'react-bootstrap';
 import "./index.css";
 
 import { authService } from "@/auth/authService.js";

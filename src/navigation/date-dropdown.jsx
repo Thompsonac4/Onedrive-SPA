@@ -5,6 +5,7 @@ import { authService } from "@/auth/authService.js";
 import { graphConfig } from "@/auth/msal-config.jsx";
 import { handleDriveId } from "@/services/handleDriveId.jsx";
 import pathManager from "@/services/pathmanager.js";
+import { sortFoldersByName } from "@/services/folder-name-sort.js";
 import CalendarSelection from "./calendar-selection";
 
 let defaultDate = false;
@@ -93,7 +94,9 @@ export default function DateDropdown({ onFolderSelect }) {
             }
 
             const data = await response.json();
-            const dateList = await Promise.all(data.value
+            const dateList = sortFoldersByName(
+                await Promise.all(
+                data.value
                 .filter((item) => item.folder)
                 .map(async (item) => {
                     const folderUrl = 
@@ -119,12 +122,8 @@ export default function DateDropdown({ onFolderSelect }) {
                         };
                     }
                 })
-            )
-            dateList.sort((a, b) =>
-                a.name.localeCompare(b.name, undefined, {
-                    numeric: true,
-                    sensitivity: "base",
-                })
+            ),
+                "name"
             );
             console.log(dateList);
             setFolders(dateList);

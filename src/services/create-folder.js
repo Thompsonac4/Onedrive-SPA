@@ -3,18 +3,20 @@ import pathManager from "./pathmanager.js";
 
 
 export async function CreateFolder(folderName) {
+    if (!folderName?.trim()) {
+        console.error("CreateFolder: folder name is empty");
+        return false;
+    }
 
-    //const accessToken = await authService.getAccessToken();
-    //const folderName = pathManager.uploadFolderName;
+    const driveID = import.meta.env.VITE_DRIVE_ID;
+
     const driveItem = {
-        name: folderName,
+        name: folderName.trim(),
         folder: { },
         '@microsoft.graph.conflictBehavior': 'fail'
     };
 
-    console.log(driveItem);
-
-    const url = pathManager.datePath;
+    const url = `https://graph.microsoft.com/v1.0/drives/${driveID}/items/${pathManager.folderId}/children`;
 
     try {
         const accessToken = await authService.getAccessToken();
@@ -27,13 +29,12 @@ export async function CreateFolder(folderName) {
             },
         });
         const data = await response.json();
-        console.log(data);
         if (!response.ok) {
             throw new Error(`Graph returned ${response.status}`);
         }
         return true;
     } catch (err) {
-        console.error("Upload failed:", folderName, err);
+        console.error("Create folder failed:", folderName, err);
         return false;
     }
 }

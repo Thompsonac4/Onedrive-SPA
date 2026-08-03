@@ -6,12 +6,24 @@ import { Button } from "@mui/material";
 import { CreateFolder } from "@/services/create-folder.js";
 import pathManager from "@/services/pathmanager.js";
 
+function formatFolderDate(date) {
+  if (!date) return "";
+  return date
+    .toLocaleDateString("en-us", {
+      month: "2-digit",
+      day: "2-digit",
+      year: "2-digit",
+    })
+    .replaceAll("/", "-");
+}
+
 export default function CalendarSelection({ location, onClose }) {
   const [uploadNewDate, setUploadNewDate] = useState(new Date());
-  const [dateString, setDateString] = useState("");
+  const [dateString, setDateString] = useState(() => formatFolderDate(new Date()));
+  const [creating, setCreating] = useState(false);
 
   const handleClose = () => {
-    if (location === "DateDropdown") {
+    if (location === "SubfolderTabs") {
       window.dispatchEvent(new CustomEvent("folderChanged", {}));
     } else if (location === "UploadModal") {
       window.dispatchEvent(new CustomEvent("dateAdded", { detail: "calendar" }));
@@ -22,29 +34,27 @@ export default function CalendarSelection({ location, onClose }) {
   function handleSelect(date) {
     // Use `date` from the picker — uploadNewDate is still the previous
     // value until the next render after setUploadNewDate.
-    console.log(date);
     setUploadNewDate(date);
-    const options = { 
-      month: '2-digit', 
-      day: '2-digit',
-      year: '2-digit'
-    };
-    const newDateString = date?.toLocaleDateString?.('en-us', options).replaceAll("/", "-");
-    console.log("Date selected:", newDateString);
-    setDateString(newDateString);
+    setDateString(formatFolderDate(date));
   }
 
   const handleCreateFolder = async () => {
-    if (dateString === "") {
-      handleSelect(uploadNewDate);
-    }
-    const name = dateString;
+    // Compute from the selected Date object — do not trust dateString alone.
+    // Calling handleSelect() then reading dateString still sees the old value
+    // because setState is async.
+    const name = dateString || formatFolderDate(uploadNewDate);
+    if (!name) return;
+
+    setCreating(true);
     const success = await CreateFolder(name);
-    if (location === "DateDropdown") {
-      console.log("Going to DropDown")
+    setCreating(false);
+
+    if (!success) return;
+
+    if (location === "SubfolderTabs") {
       window.dispatchEvent(new CustomEvent("folderChanged", { detail: name }));
+      window.dispatchEvent(new CustomEvent("dateAdded", {}));
     } else if (location === "UploadModal") {
-      console.log("Going to Upload")
       pathManager.datePathName = name;
       window.dispatchEvent(new CustomEvent("dateAdded", { detail: "calendar" }));
       window.dispatchEvent(new CustomEvent("folderChanged", { detail: name }));
@@ -69,8 +79,8 @@ export default function CalendarSelection({ location, onClose }) {
           <Button variant="secondary" onClick={handleClose}>
             Close
           </Button>
-          <Button variant="primary" onClick={handleCreateFolder}>
-            Create Folder
+          <Button variant="primary" onClick={handleCreateFolder} disabled={creating}>
+            {creating ? "Creating…" : "Create Folder"}
           </Button>
         </Modal.Footer>
       </Modal>

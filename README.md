@@ -9,30 +9,34 @@ A Microsoft 365–integrated web app for browsing and uploading jobsite document
 
 ## Description
 
-Field and office teams often have jobsite photos, reports, and spreadsheets scattered across OneDrive folders. **Jobsite Files** gives them a single, clean interface to sign in with their Microsoft account and drill down from **year → jobsite → folder → date** to instantly view every file in that location — no digging through the OneDrive web UI for day-to-day work.
+Field and office teams often have jobsite photos, reports, and spreadsheets scattered across OneDrive folders. **Jobsite Files** gives them a single, touch-friendly interface to sign in with their Microsoft account, select a shared jobsite, browse its folders, and instantly view every file in that location — no digging through the OneDrive web UI for day-to-day work.
 
 This project is designed for a real work environment and a specific company. It integrates directly with their production Microsoft 365 tenant (permissions, drive layout, and end-user workflows included).
 
-**Folder hierarchy the app expects:**
+The production drive may organize folders under inaccessible parents:
 
 ```text
-Jobsites (configured drive folder)
-  └── Year
-        └── Jobsite
-              └── Subfolder (e.g. Photos, Documents)
-                    └── Date folder (MM-D-YY)
-                          └── Files
+Jobs
+  └── 2026 Jobs
+        ├── 2026-60  ← shared directly with a user
+        └── 2026-32  ← shared directly with a user
+              └── Subfolders
+                    └── Files
 ```
+
+Users do not need access to `Jobs` or `2026 Jobs`. Microsoft Search locates jobsite folders shared directly with them, and the app opens each result by its drive and item IDs.
 
 ---
 
 ## Highlights
 
 - **Secure Microsoft sign-in** using MSAL with a full-page redirect flow and a dedicated redirect-bridge page (`auth.html`), wrapped in a reusable `AuthService` class that handles login, logout, and silent token refresh.
-- **Live OneDrive/SharePoint integration** via the Microsoft Graph API — years, jobsites, subfolders, and dates are all pulled dynamically from the user’s drive.
+- **Shared jobsite discovery** through the Microsoft Search API, including folders whose parent hierarchy the user cannot access.
+- **Live OneDrive/SharePoint integration** via Microsoft Graph — jobsites, nested folders, and files are loaded dynamically.
 - **Universal file previews:** images and videos render inline; PDFs and Word/Excel/PowerPoint use the Graph preview endpoint instead of force-downloading to the browser.
 - **Horizontal gallery** that loads every file in a folder and scrolls sideways for large sets, with a full-screen lightbox for focused viewing.
 - **Upload, create date folders, rename, and delete** without leaving the app.
+- **Mobile-first navigation** with large controls, two-column jobsite tabs, breadcrumb highlighting, bottom-left back navigation, and a full-width jobsite switch button.
 - **Production-minded config:** all tenant and client IDs live in environment variables, kept out of source control.
 
 ---
@@ -43,6 +47,25 @@ React 19 · Vite · `@azure/msal-browser` + `@azure/msal-react` · Microsoft Gra
 
 ---
 
+## Interface
+
+The current interface is designed for phones and tablets used in the field:
+
+- Jobsites appear as large, two-column tabs for quick selection.
+- Tabs and action buttons use consistent, touch-friendly sizing.
+- The active folder is highlighted in blue in the path heading.
+- **Select New Jobsite** is a large blue button above the folder content.
+- **Back** appears at the bottom-left only after entering a subfolder.
+- **Create New Folder** remains at the bottom-right of the folder card.
+- File thumbnails scroll horizontally without making the page scroll sideways.
+
+<!-- Add an updated jobsite selection screenshot at Photos/JobsiteSelection.png -->
+<img src="Photos/JobsiteSelection.png" alt="Two-column jobsite selection tabs" width="300" />
+
+<!-- Add an updated folder navigation screenshot at Photos/FolderNavigation.png -->
+<img src="Photos/FolderNavigation.png" alt="Folder navigation with the jobsite switch, back, and create folder buttons" width="300" />
+
+---
 
 ## Features & Functions
 
@@ -54,16 +77,16 @@ Users sign in with their work Microsoft account. Auth uses MSAL’s redirect flo
 
 ---
 
-### 2. Browse year → jobsite → folder → date
+### 2. Select a shared jobsite and browse folders
 
-| Step | UI | Source |
-| --- | --- | --- |
-| Year | Year dropdown | `year-dropdown.jsx` |
-| Jobsite | Autocomplete dropdown | `jobsite-dropdown.jsx` |
-| Subfolder | Tabs (Photos, docs, etc.) | `subfolder-tabs.jsx` |
-| Date | Date dropdown | `date-dropdown.jsx` |
+`jobsite-dropdown.jsx` sends a POST request to the Microsoft Search API and filters the results to folders whose names follow the jobsite format, such as `2026-60`. Results are displayed as large two-column tabs.
 
-Paths are coordinated through `pathManager.js` and custom window events so each control stays in sync.
+Selecting a jobsite opens it directly through its `driveId` and item `id`, so the app never needs to traverse inaccessible parent folders. `subfolder-tabs.jsx` then displays the selected folder's children as responsive tabs.
+
+Navigation state is coordinated through `pathManager.js` and custom window events. The breadcrumb shows the current path, the bottom-left **Back** button returns to the previous folder, and the large blue **Select New Jobsite** button resets the flow.
+
+<!-- Add a current breadcrumb/navigation screenshot at Photos/FolderBreadcrumb.png -->
+<img src="Photos/FolderBreadcrumb.png" alt="Selected jobsite and folder breadcrumb" width="300" />
 
 
 ### 3. File gallery (`imagecontainer.jsx`, `filethumbnail.jsx`, `load-images.jsx`)
@@ -115,7 +138,7 @@ Users pick files, choose an existing date folder (or create one), and upload wit
 
 ### 8. Create a new calendar date folder (`calendar-selection.jsx`, `create-folder.js`)
 
-From the date dropdown or upload flow, **Add New Date** opens a calendar. Choosing a day builds a folder name (`MM-D-YY`) and creates that folder in OneDrive via Graph so uploads and browsing can target it immediately.
+The **Create New Folder** action is positioned at the bottom-right of the folder container. It opens a calendar where the user chooses a day. The app builds a folder name (`MM-D-YY`) and creates it through Microsoft Graph so uploads and browsing can target it immediately.
 
 
 <img src="Photos/CalendarFolder.png" alt="Calendar — pick a new date" width="250" />
@@ -147,7 +170,7 @@ From the viewer edit controls, users can rename a file (extension preserved) via
 | --- | --- |
 | App shell | `src/App.jsx`, `src/main.jsx` |
 | Auth | `src/auth/` (`authService.js`, `login-button.jsx`, `msal-config.jsx`, `auth-redirect.js`) + root `auth.html` |
-| Navigation | `src/navigation/` (year, jobsite, subfolder tabs, dates, calendar) |
+| Navigation | `src/navigation/` (shared jobsite search, subfolder tabs, back navigation, calendar) |
 | Paths / Graph helpers | `src/services/` (`pathmanager.js`, create/delete/rename, etc.) |
 | Gallery & viewer | `src/files/` |
 | Upload | `src/upload/` |

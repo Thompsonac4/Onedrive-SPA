@@ -33,7 +33,7 @@ export default function FileSlide({ file }) {
     case "powerpoint":
       return (
         <iframe
-          src={file.url}
+          src={`${file.url}#zoom=FitH`}
           className="document-viewer"
           title={file.name}
         />
