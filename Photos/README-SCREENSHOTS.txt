@@ -3,6 +3,9 @@ Drop screenshots here with these filenames (see root README.md):
 Website-Overview.png
 Website-Photos.png
 Website-Files.png
+JobsiteSelection.png
+FolderNavigation.png
+FolderBreadcrumb.png
 01-Sign-In.png
 02-Browse-Hierarchy.png
 03-File-Gallery.png

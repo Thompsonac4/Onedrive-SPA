@@ -40,9 +40,10 @@ export default function ImageContainer() {
   const [activeIndex, setActiveIndex] = useState(0);
   const [viewerOpen, setViewerOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  const driveID = import.meta.env.VITE_DRIVE_ID;
 
   async function loadFiles() {
-    if (!pathManager.imagePath) {
+    if (!pathManager.folderId) {
       setFiles([]);
       return;
     }
@@ -50,13 +51,25 @@ export default function ImageContainer() {
     setFiles([]);
     setLoading(true);
 
-    const fileArray = await fetchImageNames(pathManager.imagePath);
+    const fileArray = await fetchImageNames(`https://graph.microsoft.com/v1.0/drives/${driveID}/items/${pathManager.folderId}/children`);
+
+    console.log(fileArray);
+
+    const filesOnly = fileArray.filter((item) => !item.folder);
+    console.log("Files: ", filesOnly);
+    if(filesOnly.length === 0)
+    {
+      
+      setFiles([]);
+      setLoading(false);
+      return;
+    }
 
     const imageFiles = [];
     const documentFiles = [];
     const videoFiles = [];
 
-    for (const file of fileArray) {
+    for (const file of filesOnly) {
       const type = classify(file.name);
 
       if (type === "image") {
@@ -95,7 +108,7 @@ export default function ImageContainer() {
       try {
         if (type === "image") {
           const blob = await fetchImagePreviews(
-            `https://graph.microsoft.com/v1.0/drives/${graphConfig.driveId}/items/${file.id}/content`
+            `https://graph.microsoft.com/v1.0/drives/${driveID}/items/${file.id}/content`
           );
 
           item.url = URL.createObjectURL(blob);

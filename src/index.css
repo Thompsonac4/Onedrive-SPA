@@ -1,3 +1,15 @@
+/* Shared control scale so tabs and buttons match in every container */
+:root {
+  --control-height: 52px;
+  --control-font: 16px;
+  --control-padding: 12px 22px;
+  --tab-height: 64px;
+  --tab-font: 17px;
+  --tab-gap: 10px;
+  --jobsite-tab-height: 76px;
+  --jobsite-tab-font: 19px;
+}
+
 * {
   margin: 0;
   padding: 0;
@@ -74,6 +86,62 @@ h1 {
   margin-bottom: 12px;
 }
 
+.jobsite-selection-card {
+  display: flex;
+  flex-direction: column;
+  height: calc(100dvh - 150px);
+  min-height: 420px;
+  overflow: hidden;
+}
+
+.jobsite-selection-card .JobsiteDropdown {
+  flex: 1;
+  min-height: 0;
+  padding-right: 6px;
+  overflow-x: hidden;
+  overflow-y: auto;
+  scrollbar-gutter: stable;
+}
+
+.jobsite-selection-card .jobsite-tabs {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-content: start;
+  max-height: calc((3 * var(--jobsite-tab-height)) + (2 * var(--tab-gap)));
+  padding-right: 6px;
+  overflow-x: hidden;
+  overflow-y: auto;
+  scrollbar-gutter: stable;
+}
+
+.jobsite-selection-card .jobsite-tabs .nav-link {
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+  text-wrap: balance;
+}
+
+.jobsite-selection-card .accordion-body {
+  padding-top: 12px;
+}
+
+.jobsite-selection-card .jobsite-selection-header {
+  min-height: 64px;
+  margin-bottom: 18px;
+  padding: 16px 28px;
+  border-radius: 4px;
+  background: #1976d2;
+  color: #ffffff;
+}
+
+.jobsite-selection-card .jobsite-selection-title {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 700;
+  text-align: center;
+  color: #ffffff;
+}
+
 .card {
   background: white;
   border-radius: 12px;
@@ -88,6 +156,53 @@ h1 {
   font-size: 22px;
 }
 
+.path-heading,
+.files-heading {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid #e5eaf0;
+}
+
+.path-heading-label {
+  color: #687786;
+  font-size: 15px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.path-segment {
+  color: #34495e;
+  font-weight: 600;
+}
+
+.path-segment-current,
+.files-heading-folder {
+  color: #1976d2;
+}
+
+.path-separator {
+  color: #9aa6b2;
+  font-size: 18px;
+  font-weight: 400;
+}
+
+.files-heading {
+  gap: 6px;
+}
+
+.files-heading > span:first-child {
+  color: #687786;
+  font-weight: 500;
+}
+
+.files-heading-folder {
+  font-weight: 700;
+}
+
 /* --- Dropdowns (react-bootstrap) styled like the example <select> --- */
 .YearDropdown .dropdown,
 .JobsiteDropdown .dropdown,
@@ -99,11 +214,19 @@ h1 {
 .JobsiteDropdown .dropdown-toggle,
 .DateDropdown .dropdown-toggle {
   width: 100%;
-  padding: 16px;
-  font-size: 18px;
+  min-height: var(--control-height);
+  padding: 14px 18px;
+  font-size: var(--control-font);
+  font-weight: 600;
   text-align: left;
   background: #1976d2;
   border: none;
+}
+
+.dropdown-menu .dropdown-item {
+  min-height: 46px;
+  padding: 12px 18px;
+  font-size: var(--control-font);
 }
 
 .YearDropdown .dropdown-menu,
@@ -115,28 +238,140 @@ h1 {
 /* --- Folder tabs (react-bootstrap Tabs) --- */
 .card .nav-tabs {
   border: none;
-  gap: 10px;
+  gap: var(--tab-gap);
   flex-wrap: wrap;
 }
 
 .card .nav-tabs .nav-item {
-  flex: 1;
-  min-width: 120px;
+  flex: 1 1 calc(50% - 5px);
+  min-width: 150px;
+}
+
+/* Jobsite tabs: always 2 columns. Override the shared 150px min-width that
+   forces a single column on narrow phones. */
+.jobsite-selection-card .jobsite-tabs .nav-item {
+  flex: none;
+  min-width: 0;
+  width: 100%;
+  height: var(--jobsite-tab-height);
 }
 
 .card .nav-tabs .nav-link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   width: 100%;
+  min-height: var(--tab-height);
   border: none;
   border-radius: 8px;
   background: #e8ecf1;
   color: #2c3e50;
-  padding: 14px;
-  font-size: 16px;
+  padding: 14px 16px;
+  font-size: var(--tab-font);
+  font-weight: 600;
+  line-height: 1.25;
+  text-align: center;
+  overflow-wrap: anywhere;
 }
 
 .card .nav-tabs .nav-link.active {
   background: #1976d2;
   color: white;
+}
+
+.jobsite-selection-card .jobsite-tabs .nav-link {
+  min-height: var(--jobsite-tab-height);
+  font-size: var(--jobsite-tab-font);
+
+}
+
+
+.SubfolderTabs .nav-tabs {
+  align-content: flex-start;
+  /* Exactly 3 rows of equal-height tabs, then scroll */
+  max-height: calc((3 * var(--tab-height)) + (2 * var(--tab-gap)));
+  padding-right: 6px;
+  overflow-x: hidden;
+  overflow-y: auto;
+  scrollbar-gutter: stable;
+}
+
+.SubfolderTabs .nav-tabs .nav-item {
+  flex: 0 0 calc(50% - (var(--tab-gap) / 2));
+  min-width: 0;
+  height: var(--tab-height);
+}
+
+.SubfolderTabs .nav-tabs .nav-link {
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+  text-wrap: balance;
+}
+
+.accordion-button {
+  background-color: #c6c2c2;
+  color: #020202;
+  text-align: center !important;
+  font-size: 1.5rem;
+}
+.accordion-button:not(.collapsed) {
+  background-color: #59a4ee;
+  color: #ffffff;
+  justify-content: center !important;
+}
+
+/* One shared size for every action button, whichever library renders it */
+.card .btn,
+.card .MuiButton-root,
+.modal-footer .btn,
+.modal-footer .MuiButton-root,
+.login-area .btn,
+.viewer-menu .dropdown-toggle {
+  min-height: var(--control-height);
+  padding: var(--control-padding);
+  font-size: var(--control-font);
+  font-weight: 600;
+}
+
+.card .nav-tabs .nav-link,
+.card .btn,
+.card .MuiButton-root {
+  text-transform: none;
+}
+
+.jobsite-nav-bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  margin-bottom: 16px;
+}
+
+.jobsite-nav-bar .MuiButton-root,
+.jobsite-nav-bar .btn {
+  width: 100%;
+  min-height: 64px;
+  padding: 16px 28px;
+  font-size: 20px;
+  font-weight: 700;
+  text-transform: none;
+}
+
+.subfolder-empty {
+  padding: 28px 12px;
+  color: #687786;
+  font-size: 1.5rem;
+  font-weight: 600;
+  text-align: center;
+}
+
+.subfolder-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 20px;
 }
 
 /* Placeholder tile for files we don't render inline */
@@ -201,6 +436,13 @@ h1 {
 
 /* Tablets and small laptops */
 @media (max-width: 768px) {
+  :root {
+    --tab-height: 62px;
+    --tab-font: 16px;
+    --jobsite-tab-height: 70px;
+    --jobsite-tab-font: 18px;
+  }
+
   body {
     padding: 16px;
   }
@@ -216,10 +458,25 @@ h1 {
   .card h2 {
     font-size: 20px;
   }
+
+  .jobsite-selection-card {
+    height: calc(100dvh - 130px);
+  }
 }
 
 /* Phones */
 @media (max-width: 640px) {
+  :root {
+    --control-height: 50px;
+    --control-font: 15px;
+    --control-padding: 12px 16px;
+    --tab-height: 60px;
+    --tab-font: 15px;
+    --tab-gap: 8px;
+    --jobsite-tab-height: 68px;
+    --jobsite-tab-font: 17px;
+  }
+
   body {
     padding: 12px;
   }
@@ -260,27 +517,27 @@ h1 {
     margin-bottom: 14px;
   }
 
-  /* Dropdowns: smaller touch-friendly padding */
-  .YearDropdown .dropdown-toggle,
-  .JobsiteDropdown .dropdown-toggle,
-  .DateDropdown .dropdown-toggle {
-    padding: 13px;
-    font-size: 16px;
-  }
-
-  /* Folder tabs wrap two-per-row instead of squishing */
-  .card .nav-tabs {
-    gap: 8px;
-  }
-
-  .card .nav-tabs .nav-item {
-    flex: 1 1 calc(50% - 8px);
-    min-width: 0;
-  }
-
+  /* Keep touch targets tall on phones, just tighten the horizontal padding */
   .card .nav-tabs .nav-link {
     padding: 12px 8px;
-    font-size: 14px;
+  }
+
+  .jobsite-selection-card {
+    height: calc(100dvh - 155px);
+    min-height: 360px;
+  }
+
+  .jobsite-selection-card .jobsite-selection-header {
+    min-height: 58px;
+    padding: 14px 18px;
+  }
+
+  .jobsite-selection-card .jobsite-selection-title {
+    font-size: 18px;
+  }
+
+  .jobsite-selection-header .MuiButton-root {
+    right: 18px;
   }
 
   /* Carousel: smaller arrows, one tile visible with a peek */
@@ -311,6 +568,15 @@ h1 {
 
 /* Very small phones */
 @media (max-width: 380px) {
+  :root {
+    --control-font: 14px;
+    --control-padding: 11px 12px;
+    --tab-height: 56px;
+    --tab-font: 14px;
+    --jobsite-tab-height: 62px;
+    --jobsite-tab-font: 15px;
+  }
+
   .app-header h1 {
     font-size: 22px;
   }

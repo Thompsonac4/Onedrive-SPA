@@ -1,152 +1,272 @@
-import { useState, useEffect } from 'react';
-import { useMsal, useIsAuthenticated } from "@azure/msal-react";
+import { useEffect, useState } from "react";
+import { Tab } from "react-bootstrap";
+import Tabs from "react-bootstrap/Tabs";
+import Button from '@mui/material/Button';
+import { useIsAuthenticated } from "@azure/msal-react";
 import { authService } from "@/auth/authService.js";
-import { graphConfig } from "@/auth/msal-config.jsx";
-import { handleDriveId } from "@/services/handleDriveId.jsx";
-import Tab from 'react-bootstrap/Tab';
-import Tabs from 'react-bootstrap/Tabs';
-import { fetchFolderNames } from "@/files/load-folders.jsx";
 import pathManager from "@/services/pathmanager.js";
+import { sortFoldersByName } from "@/services/folder-name-sort.js";
 
-function SubfolderTabs() {
-    
-    const [key, setKey] = useState('home'); // Current selected tab/folder
-    const [homeTabName, setHomeTabName] = useState(pathManager.Path || "Home"); // Stores the current Jobsite path from pathManager
-    const [folders, setFolders] = useState([]);  // Stores folders returned from OneDrive/Graph API
-    const handlePathEvent = (event) => {
+/**
+ * JobsiteDropdown
+ * ---------------
+ * Finds job folders the signed-in user can access, including folders shared
+ * directly with the user. Parent folders do not need to be accessible.
+ */
+export default function SubfolderTabs() {
+  const isAuthenticated = useIsAuthenticated();
 
-    if(event.detail){
+  const [folders, setFolders] = useState([]);
+  const [selectedFolder, setSelectedFolder] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [canGoBack, setCanGoBack] = useState(false);
+  const [uploadPermission, setUploadPermission] = useState(false);
+  const [showNoFolders, setShowNoFolders] = useState(false);
+  const driveID = import.meta.env.VITE_DRIVE_ID;
 
-        setHomeTabName("Home");
+//   useEffect(() => {
+//     if (isAuthenticated) {
+//       loadFolders();
+//     }
+//   }, [isAuthenticated]);
 
-        setKey("home");
-
-    }
-};
-    /*
-        Listen for changes to the selected Jobsite path.
-
-        Example:
-        User selects "Jobsite 1"
-        pathManager.Path becomes "Jobsite 1"
-        A custom event is fired
-        This updates the component.
-    */
-    useEffect(() => {
-        const handlePathEvent = (event) => {
-            if (event.detail) {
-                setHomeTabName(event.detail);
-               
-                
-                setKey('home'); // Reset tab selection when changing jobsites
-            }
-        };
-        window.addEventListener("pathChanged", handlePathEvent);
-        return () => {
-            window.removeEventListener("pathChanged", handlePathEvent);
-        };
-    }, []);
-
-
-    /*
-        Load subfolders whenever the selected Jobsite changes.
-
-        This runs when:
-        - User selects a different Jobsite
-        - pathManager.Path changes
-    */
-    useEffect(() => {
-        async function loadFolders() {
-            if (!pathManager.Path) return;
-            const names = await fetchFolderNames(pathManager.Path);
-            setFolders(names);
-        }
+ //Event Handler to reload the images depending on what the Jobsite and Folder Selection has been changed
+  useEffect(() => {
+    if (authService.isAuthenticated()) {
         loadFolders();
-
-    }, [homeTabName]);
-    async function setCreationPermission(){
-        const permissionCheck = await checkUploadPermission(`${pathManager.Path.replace(':/children', '')}/${key}:/permissions`);
-        console.log("folder Permission Check: " + permissionCheck);
-        window.dispatchEvent(new CustomEvent("folderCreationPermissionChanged", {detail: permissionCheck}));
-        pathManager.folderPermission = permissionCheck;
-        window.dispatchEvent(new CustomEvent("folderCreationPermission", { detail:  permissionCheck }));
     }
-    /*
-        Update imagePath ONLY when the active tab changes.
 
-        Previously this was inside the cleanup function of another
-        useEffect, which caused it to update at the wrong time.
-    */
-    useEffect(() => {
-        if (!pathManager.Path || !key) return;
+    async function reloadFolders() {
+      await loadFolders();
+    }
 
-        if (key === "home") {
+    window.addEventListener("pathChanged", reloadFolders);
+    window.addEventListener("dateAdded", reloadFolders);
+    return () => {
+      window.removeEventListener("pathChanged", reloadFolders);
+      window.removeEventListener("dateAdded", reloadFolders);
+    };
+  }, []);
 
-            // Root Jobsite folder
-            pathManager.datePath = `${pathManager.Path}`;
-        } 
+  async function loadFolders() {
+    setLoading(true);
+    setError(null);
+
+    try {
+      const accessToken = await authService.getAccessToken();
+      if (!accessToken) return;
+        //Response fetch
+      const url = `https://graph.microsoft.com/v1.0/drives/${driveID}/items/${pathManager.folderId}/children`;
+      const response = await fetch(url, {
+            headers: { Authorization: `Bearer ${accessToken}` },
+        });
+
+        if (!response.ok) {
+            throw new Error(`Graph returned ${response.status}`);
+        }
+
+        const data = await response.json();
+        const folderWithStatus = await Promise.all(
+            (data.value || [])
+                .filter((item) => item.folder)
+                .map(async(folder)=>{
+                    const childrenUrl = `https://graph.microsoft.com/v1.0/drives/${driveID}/items/${folder.id}/children`;
+                    const childResponse = await fetch(childrenUrl, {
+                        headers: { Authorization: `Bearer ${accessToken}` },
+                    });
+                    const childData = await childResponse.json();
+
+                    const isEmpty = !childData.value || childData.value.length === 0;
+
+                    return{
+                        ...folder,
+                        isEmpty,
+                        displayName: isEmpty ? `${folder.name} (Empty)` : folder.name,
+                    };
+
+                })
+        );
+        if (folderWithStatus.length === 0) {
+          // Clear the previous folder's tabs, otherwise they stay on screen
+          setFolders([]);
+          setShowNoFolders(true);
+        }
         else {
-            // Selected subfolder
-            pathManager.datePath = `${pathManager.Path.replace(':/children', '')}/${key}:/children`;
-            setCreationPermission();
-            window.dispatchEvent(new CustomEvent("folderChanged", { detail: "default" }));
-            window.dispatchEvent(new CustomEvent("showDates", {}));
-            
+          setShowNoFolders(false);
+          setFolders(sortFoldersByName(folderWithStatus, "name"));
         }
-        //console.log("Subfolder: Updated date path:", pathManager.datePath);
+        const filesOnly = data.value.filter((item) => !item.folder);
+        if(filesOnly.length !== 0)
+        {
+            window.dispatchEvent(new CustomEvent("showFiles", { }));
+        }
+        else{
+            window.dispatchEvent(new CustomEvent("hideFiles", { }));
+        }
+        const itemUrl = await `https://graph.microsoft.com/v1.0/drives/${driveID}/items/${pathManager.folderId}/permissions`;
         
-    }, [key]);
-    
-    async function checkUploadPermission(folderName){
-            try{
-                const accessToken = await authService.getAccessToken();
-                console.log("Folder Path "+ folderName);
-                const folderPermissionsUrl = folderName;
-                
-
-                const response = await fetch(folderPermissionsUrl, {
-                    headers: {
-                        Authorization: `Bearer ${accessToken}`,
-                    },
-                });
-    
-                if (!response.ok){
-                    console.error("permission check failed:", response.status);
-                    return false;
-                }
-    
-                const data = await response.json();
-    
-                const canWrite = data.value.some(permission => permission.roles?.includes("write"));
-                
-                return canWrite;
-                } catch (error){
-                    console.error("Upload Permission Error: ", error);
-                    return false;
-                }
+        const uploadPermissionResponse = await checkUploadPermission(itemUrl);
+        console.log("Permissions: " + uploadPermissionResponse);
+        setUploadPermission(uploadPermissionResponse);
+        window.dispatchEvent(new CustomEvent("uploadPermissionChanged", {detail:uploadPermissionResponse}));
+        if(uploadPermissionResponse){
+            console.log("Dispatching");
+            const filesUrl = await `https://graph.microsoft.com/v1.0/drives/${driveID}/items/${pathManager.folderId}`;
+            pathManager.filePath = filesUrl;
+        }
+        console.log(pathManager.folderName);
+        if (/\d{2}[/-]\d{2}[/-]\d{2}/.test(pathManager.folderName)) {
+          console.log("Date detected");
+          setUploadPermission(false);
         }
 
+    } catch (err) {
+      console.error(err);
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  }
 
-    return (
+  async function handleSelect(folderKey) {
+    const folder = folders.find(
+      (item) => `${item.driveId}:${item.id}` === folderKey
+    );
+    if (!folder) return;
+
+    setSelectedFolder(folderKey);
+    pathManager.addId(pathManager.folderId, pathManager.folderName);
+    pathManager.folderId = folder.id;
+    pathManager.folderName = folder.name;
+    setCanGoBack(true);
+
+    // Navigate from the shared folder itself. This does not traverse Jobs or
+    // "<year> Jobs", which recipients might not have permission to access.
+    // const childrenUrl =
+    //   `https://graph.microsoft.com/v1.0/drives/${encodeURIComponent(folder.driveId)}` +
+    //   `/items/${encodeURIComponent(folder.id)}/children`;
+    //   console.log("URl : " + childrenUrl);
+    // pathManager.Path = childrenUrl;
+    window.dispatchEvent(
+      new CustomEvent("pathChanged", {})
+    );
+    window.dispatchEvent(
+      new CustomEvent("imagesChanged", {})
+    );
+    window.dispatchEvent(new CustomEvent("setFolderName", {detail: folder.name}));
+    window.dispatchEvent(new CustomEvent("setPathName", {detail: folder.name}));
+    const itemUrl = await `https://graph.microsoft.com/v1.0/drives/${driveID}/items/${folder.id}/permissions`;
+    
+    const uploadPermissionResponse = await checkUploadPermission(itemUrl);
+    console.log("Permissions: " + uploadPermissionResponse);
+    setUploadPermission(uploadPermissionResponse);
+    console.log("Upload Permission: ", uploadPermission);
+    if(uploadPermissionResponse){
+        console.log("Dispatching");
+        pathManager.folderName = await folder.name;
+        const filesUrl = await `https://graph.microsoft.com/v1.0/drives/${driveID}/items/${folder.id}`;
+        pathManager.filePath = filesUrl;
+        window.dispatchEvent(new CustomEvent("uploadPermissionChanged", {detail:uploadPermissionResponse}));
+    }
+  }
+
+  function handleBack() {
+    const previousFolder = pathManager.getLastFolder();
+    if (!previousFolder) return;
+
+    pathManager.folderId = previousFolder.id;
+    pathManager.folderName = previousFolder.name;
+    setSelectedFolder("");
+    setCanGoBack(pathManager.canGoBack());
+
+    window.dispatchEvent(new CustomEvent("pathChanged", {}));
+    window.dispatchEvent(new CustomEvent("imagesChanged", {}));
+    window.dispatchEvent(
+      new CustomEvent("setFolderName", {
+        detail: previousFolder.name || "Files",
+      })
+    );
+    window.dispatchEvent(new CustomEvent("folderBack", {}));
+  }
+
+  function handleShowCalendar() {
+    window.dispatchEvent(new CustomEvent("showCalendar", { detail: "SubfolderTabs" }));
+  }
+
+  if (!isAuthenticated) {
+    return null;
+  }
+  if (loading) {
+    return <div>Loading jobsites...</div>;
+  }
+  if (error) {
+    return <div>Error: {error}</div>;
+  }
+        async function checkUploadPermission(folderName){
+                    try{
+                        const accessToken = await authService.getAccessToken();
+                        console.log("Folder Path "+ folderName);
+                        const folderPermissionsUrl = folderName;
+                        
+
+                        const response = await fetch(folderPermissionsUrl, {
+                            headers: {
+                                Authorization: `Bearer ${accessToken}`,
+                            },
+                        });
+            
+                        if (!response.ok){
+                            console.error("permission check failed:", response.status);
+                            return false;
+                        }
+            
+                        const data = await response.json();
+            
+                        const canWrite = data.value.some(permission => permission.roles?.includes("write"));
+                        
+                        return canWrite;
+                        } catch (error){
+                            console.error("Upload Permission Error: ", error);
+                            return false;
+                        }
+                }
+  return (
+    <div className="SubfolderTabs">
+      {showNoFolders ? (
+        <p className="subfolder-empty"></p>
+      ) : (
         <Tabs
             fill
-            id="controlled-tab-example"
-            activeKey={key}// Controls which tab is highlighted
-            onSelect={(k) => setKey(k)}// Fires whenever user clicks a tab
+            id="jobsite-tabs"
+            activeKey={selectedFolder}// Controls which tab is highlighted
+            onSelect={(value) => handleSelect(value)}// Fires whenever user clicks a tab
         >
-
             {/* Generate tabs dynamically from Graph folders.
                 Tabs only drive the date/image selection, so the tab body is
                 intentionally empty to keep the card layout clean. */}
             {folders.map(folder => (
                 <Tab
-                    key={folder}
-                    eventKey={folder}
-                    title={folder}
+                    key={`${folder.driveId}:${folder.id}`}
+                    eventKey={`${folder.driveId}:${folder.id}`}
+                    title={folder.displayName}
                 />
             ))}
         </Tabs>
-    );
+      )}
+      <div className="subfolder-footer">
+        {canGoBack ? (
+          <Button variant="contained" onClick={handleBack}>
+            ← Back
+          </Button>
+        ) : (
+          <span />
+        )}
+        {uploadPermission && <Button variant="outlined" onClick={handleShowCalendar}>
+          Create New Folder
+        </Button>}
+      </div>
+    </div>
+    
+  );
 }
-
-export default SubfolderTabs;

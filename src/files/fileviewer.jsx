@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import FileSlide from "./fileslide.jsx";
 import Dropdown from "react-bootstrap/Dropdown";
 import Modal from "react-bootstrap/Modal";
@@ -8,10 +8,13 @@ import { DeleteItem } from "@/services/delete-item.js";
 import { ChangeFileName } from "@/services/change-file-name.js";
 import { ModalTitle, Form } from "react-bootstrap";
 
+const SWIPE_THRESHOLD_PX = 56;
+
 /**
  * Lightbox viewer — one file at a time, React-controlled.
  * Swiper was jumping off video slides when the player (or neighbor
  * iframes) finished loading and triggered a size/update cycle.
+ * Horizontal swipe navigation is handled with pointer events instead.
  */
 export default function FileViewer({ files, startIndex, close }) {
   const [currentId, setCurrentId] = useState(
@@ -27,6 +30,7 @@ export default function FileViewer({ files, startIndex, close }) {
   const [modalMessage, setModalMessage] = useState("");
   const [modalButtonDelete, setModalButtonDelete] = useState(false);
   const [modalButtonChange, setModalButtonChange] = useState(false);
+  const swipeStartRef = useRef(null);
 
 
   const index = Math.max(
@@ -48,6 +52,54 @@ export default function FileViewer({ files, startIndex, close }) {
       setCurrentId(files[index + 1].id);
     }
   }
+
+  function isSwipeBlockedTarget(target) {
+    if (!(target instanceof Element)) return false;
+
+    return Boolean(
+      target.closest(
+        "video, iframe, button, a, input, textarea, select, .viewer-menu, .dropdown-menu, .modal"
+      )
+    );
+  }
+
+  function onPointerDown(event) {
+    if (event.pointerType === "mouse" && event.button !== 0) return;
+    if (isSwipeBlockedTarget(event.target)) return;
+
+    swipeStartRef.current = {
+      x: event.clientX,
+      y: event.clientY,
+      pointerId: event.pointerId,
+    };
+  }
+
+  function onPointerUp(event) {
+    const start = swipeStartRef.current;
+    swipeStartRef.current = null;
+    if (!start || start.pointerId !== event.pointerId) return;
+
+    const deltaX = event.clientX - start.x;
+    const deltaY = event.clientY - start.y;
+
+    // Prefer horizontal swipes; ignore mostly-vertical gestures.
+    if (
+      Math.abs(deltaX) < SWIPE_THRESHOLD_PX ||
+      Math.abs(deltaX) <= Math.abs(deltaY)
+    ) {
+      return;
+    }
+
+    if (deltaX < 0) {
+      goNext();
+    } else {
+      goPrev();
+    }
+  }
+
+  function onPointerCancel() {
+    swipeStartRef.current = null;
+  }
   
   async function deletionSetup(){
     setModalTitle("Delete File");
@@ -64,14 +116,14 @@ export default function FileViewer({ files, startIndex, close }) {
         await DeleteItem(urlDeletion);
         pathManager.deletedFileName = fileDeleted;
         window.dispatchEvent(new CustomEvent("imagesChanged", {}));
-        window.dispatchEvent(new CustomEvent("deletionStatus", {detail: {fileName: fileDeleted, message: " Was Deleted Successfully."}}));
+        window.dispatchEvent(new CustomEvent("deletionStatus", {detail: {fileName: fileDeleted, message: " Was Deleted Successfully.", title: "Deletion Confirmation"}}));
         close();
     }
     catch (error)
     {
       console.error("Delete failed:", error);
 
-        window.dispatchEvent(new CustomEvent("deletionStatus", {detail: {fileName: fileDeleted, message: `Deletion Failed. Error: ${error.message}`}}));
+        window.dispatchEvent(new CustomEvent("deletionStatus", {detail: {fileName: fileDeleted, message: `Deletion Failed. Error: ${error.message}`, title: "Deletion Confirmation"}}));
     }
     
   }
@@ -102,11 +154,12 @@ export default function FileViewer({ files, startIndex, close }) {
     try {
       await ChangeFileName(url, name);
       window.dispatchEvent(new CustomEvent("imagesChanged", {}));
-      window.dispatchEvent(new CustomEvent("deletionStatus", {detail: {fileName: oldName, message: ` Was Changed to ${name} Successfully`}}));
+      window.dispatchEvent(new CustomEvent("deletionStatus", {detail: {fileName: oldName, message: ` Was Changed to ${name} Successfully`, title: "File Name Change"}}));
       close();
     }
     catch (error) {
       console.error("Change name failed: ", error)
+      window.dispatchEvent(new CustomEvent("deletionStatus", {detail: {fileName: oldName, message: `Failed to Change Name: ${error.message}`, title: "File Name Change"}}));
     }
   }
 
@@ -134,7 +187,12 @@ export default function FileViewer({ files, startIndex, close }) {
   }
 
   return (
-    <div className="viewer">
+    <div
+      className="viewer"
+      onPointerDown={onPointerDown}
+      onPointerUp={onPointerUp}
+      onPointerCancel={onPointerCancel}
+    >
       <button className="close" onClick={close} type="button" aria-label="Close">
         ✕
       </button>

@@ -1,123 +1,196 @@
-import { useEffect, useState } from "react";
-import Dropdown from "react-bootstrap/Dropdown";
+import { useEffect, useEffectEvent, useState } from "react";
+import { Tab } from "react-bootstrap";
+import Tabs from "react-bootstrap/Tabs";
 import { useIsAuthenticated } from "@azure/msal-react";
 import { authService } from "@/auth/authService.js";
 import pathManager from "@/services/pathmanager.js";
-import TextField from '@mui/material/TextField';
-import Autocomplete from '@mui/material/Autocomplete';
-
-
-
+import Accordion from "react-bootstrap/Accordion";
+import folderIds from "@/FolderIds/job-folder-ids.json" with { type: "json" };
 
 /**
  * JobsiteDropdown
  * ---------------
- * Second step in the hierarchy. Waits for a year to be selected, then lists
- * the jobsite folders inside Projects/<year> and lets the user pick one.
- *
- * Flow:
- *   YearDropdown → "yearChanged" → load jobsites here → pick jobsite →
- *   "pathChanged" → SubfolderTabs → DateDropdown → ImageContainer
- *
- * Authentication and the sign-in button now live in LoginButton (top right).
+ * Finds job folders the signed-in user can access, including folders shared
+ * directly with the user. Parent folders do not need to be accessible.
  */
 export default function JobsiteDropdown() {
   const isAuthenticated = useIsAuthenticated();
 
   const [folders, setFolders] = useState([]);
-  const [selectedFolder, setSelectedFolder] = useState("Select Jobsite");
+  const [selectedFolder, setSelectedFolder] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [hasYear, setHasYear] = useState(Boolean(pathManager.yearPath));
+  const [sortedYears, setSortedYears] = useState([]);
+  const [groupedFolders, setGroupedFolders] = useState({});
 
-  // Reload jobsites whenever the selected year changes
-  useEffect(() => {
-    async function onYearChanged() {
-      if (!pathManager.yearPath) {
-        setHasYear(false);
-        setFolders([]);
-        return;
-      }
-      setHasYear(true);
-      setSelectedFolder("Select Jobsite");
-      await loadFolders();
+  const [yearFolders, setYearFolders] = useState([]);
+
+  const [openYear, setOpenYear] = useState("");
+  const [searchForJobsites, setSearchForJobsites] = useState(false);
+
+  useEffect(() => {   
+    if (isAuthenticated) {
+      loadFolders();
     }
 
-    // Load immediately in case a year was already chosen
-    onYearChanged();
+  }, [isAuthenticated]);
 
-    window.addEventListener("yearChanged", onYearChanged);
-    return () => window.removeEventListener("yearChanged", onYearChanged);
+  useEffect(()=>{
+    async function reloadJobsites(){
+        pathManager.jobsList = [];
+        await loadFolders();
+      }
+    window.addEventListener("reloadJobsites", reloadJobsites);
+    return() => {
+      window.removeEventListener("reloadJobsites", reloadJobsites);
+    };
   }, []);
-
-  async function loadFolders() {
+async function loadFolders() {
     setLoading(true);
     setError(null);
-    try {
-      const accessToken = await authService.getAccessToken();
-      if (!accessToken) return;
 
-      const response = await fetch(pathManager.yearPath, {
-        headers: { Authorization: `Bearer ${accessToken}` },
-      });
-
-      if (!response.ok) {
-        throw new Error(`Graph returned ${response.status}`);
+      try{
+        let jobs = pathManager.jobsList;
+        if (!jobs || jobs.length === 0) {
+          jobs = await searchJobsites();
+          pathManager.jobsList = jobs;
+        }
+        const grouped = Map.groupBy(jobs, job => job.year);
+        const years = [...grouped.keys()].sort((a, b) => Number(b) - Number(a));
+        setGroupedFolders(grouped);
+        setSortedYears(years);
+        setFolders(jobs);
+        setOpenYear(years[0] ?? "");
+    }
+    catch (error)
+    {
+      console.error(error);
       }
-
-      const data = await response.json();
-      setFolders(
-        (data.value || [])
-        .filter((item) => item.folder)
-        .map((item) => item.name)
-        .sort((a, b) => a.localeCompare(b, undefined, { numeric: true, sensitivity: "base",}))
-      );
-    } catch (err) {
-      console.error(err);
-      setError(err.message);
-      
-    } finally {
-      setLoading(false);
+    finally {
+       setLoading(false);
     }
   }
-
-  function handleSelect(folder) {
-    setSelectedFolder(folder);
-
-    // Append the jobsite to the year path: Projects/<year>/<jobsite>
-    const base = pathManager.yearPath.replace(":/children", "");
-    const MainUrl = `${base}/${encodeURIComponent(folder)}:/children`;
-
-    pathManager.Path = MainUrl;
+    async function searchJobsites()
+  {
     
-    window.dispatchEvent(new CustomEvent("jobsiteImagesChanged"));
+    try {
+      const jobs = folderIds.years.flatMap(year => 
+        year.jobs.map(job => ({
+          year: year.year,
+          id: job.id,
+          name: job.name,
+          permissions: job.permissions.flatMap(permission =>
+            permission.identities.map(identity => ({
+              id: identity.id,
+              name: identity.displayName,
+              role: permission.roles[0],
+            }))
+          ),
+        }))
+      );
+      
+      
+      let filteredFolders;
+    
+      console.log("Jobs retrieved: ", jobs);
+      const account = await authService.getAccount();
+      console.log(account.name);
+
+      if (account.name === "John Thompson" || account.name === "Ryan Thompson"){
+        return jobs;
+      }
+      
+      const accountId = await account?.homeAccountId.split(".")[0];
+      return jobs
+      .filter(job =>
+        job.permissions.some(permission =>
+          permission.id === accountId
+        )
+      )
+      .map(job => ({
+        id: job.id,
+        driveId: job.driveId,
+        name: job.name.substring(5),
+        year: job.year,
+      }));
+      
+      } catch (err) {
+      console.error(err);
+      setError(err.message);
+    } 
+    }
+
+  function handleSelect(folderKey) {
+    const folder = folders.find(
+      (item) => `${item.driveId}:${item.id}` === folderKey
+    );
+    if (!folder) return;
+
+    console.log("Folder ID: "+ folder.id);
+    setSelectedFolder(folderKey);
+    pathManager.clearFolderHistory();
+    pathManager.folderId = folder.id;
+    pathManager.folderName = folder.name;
+
+    // Navigate from the shared folder itself. This does not traverse Jobs or
+    // "<year> Jobs", which recipients might not have permission to access.
+    const childrenUrl =
+      `https://graph.microsoft.com/v1.0/drives/${encodeURIComponent(folder.driveId)}` +
+      `/items/${encodeURIComponent(folder.id)}/children`;
+      console.log("URl : " + childrenUrl);
+    pathManager.Path = childrenUrl;
+
+    window.dispatchEvent(
+      new CustomEvent("pathChanged", { })
+    );
     window.dispatchEvent(new CustomEvent("showFolder", {}));
-    window.dispatchEvent(new CustomEvent("pathChanged", { detail: MainUrl }));
-    
+     window.dispatchEvent(new CustomEvent("setFolderName", {detail: folder.name}));
+     window.dispatchEvent(new CustomEvent("setPathName", {detail: folder.name}));
   }
 
-  // Hidden until signed in and a year is chosen
-  if (!isAuthenticated || !hasYear) {
+  if (!isAuthenticated) {
     return null;
   }
   if (loading) {
     return <div>Loading jobsites...</div>;
   }
   if (error) {
-    
     return <div>Error: {error}</div>;
-  }
+     }
 
   return (
     <div className="JobsiteDropdown">
-      <Autocomplete
-        disablePortal
-        disableClearable
-        options={folders}
-        sx={{ width: 300 }}
-        renderInput={(params) => <TextField {...params} label="Jobsite" />}
-        onChange={(event, value) => handleSelect(value)}
-      />
+      <Accordion
+        activeKey={openYear}
+        onSelect={(key) => setOpenYear(key ?? "")}
+      >
+        {sortedYears.map((year) => (
+          <Accordion.Item eventKey={year} key={year}>
+            <Accordion.Header>{year}</Accordion.Header>
+            <Accordion.Body>
+              <Tabs
+
+                id={`jobsite-tabs-${year}`}
+                className="jobsite-tabs"
+                activeKey={selectedFolder}// Controls which tab is highlighted
+                onSelect={(value) => handleSelect(value)}// Fires whenever user clicks a tab
+              >
+                {/* Generate tabs dynamically from Graph folders.
+                    Tabs only drive the date/image selection, so the tab body is
+                    intentionally empty to keep the card layout clean. */}
+               {(groupedFolders.get(year) || []).map((folder) => (
+                <Tab
+                  key={`${folder.driveId}:${folder.id}`}
+                  eventKey={`${folder.driveId}:${folder.id}`}
+                  title={folder.name}
+                />
+              ))}
+              </Tabs>
+            </Accordion.Body>
+          </Accordion.Item>
+        ))}
+      </Accordion>
     </div>
+
   );
 }

@@ -6,13 +6,14 @@ class PathManager {
             // Internal storage variables
             this.path = "";
             this._imagePath = "";
-            this._datePath = "";
-            this._yearPath = "";
-            this._uploadPath = "";
-            this._uploadFolderName = "";
-            this._deletedName = "";
-            this._datePathName = "";
-            this._folderPermission = false;
+            this._folderId = "";
+            this._filePath = "";
+            this._parentId = "";
+            this._IdArray = [];
+            this._folderName = "";
+            this._folderPathText = "";
+            this._jobsList = [];
+            
             // Singleton instance
             this.instance = this;
         }
@@ -38,21 +39,21 @@ class PathManager {
     }
 
     // Image folder path
-    set datePath(newPath) {
-        // console.log(
-        //      "PathManager: Setting date  path to",
+    set filePath(newPath) {
+        //  console.log(
+        //     "PathManager: Setting image path to",
         //      newPath
         //  );
 
-        this._datePath = newPath;
+        this._filePath = newPath;
     }
 
-    get datePath() {
+    get filePath() {
         // console.log(
-        //     "PathManager: Getting date path:",
-        //     this._datePath
+        //     "PathManager: Getting image path:",
+        //     this._imagePath
         // );
-        return this._datePath;
+        return this._filePath;
     }
 
     // Image folder path
@@ -72,101 +73,62 @@ class PathManager {
         // );
         return this._imagePath;
     }
-    set yearPath(newPath) {
-        // console.log(
-        //     "PathManager: Setting path to",
-        //     newPath
-        // );
-        this._yearPath = newPath;
+   
+
+    set folderId(newId) {
+        this._folderId = newId;
     }
 
-    get yearPath() {
-        // console.log(
-        //     "PathManager: Getting path:",
-        //     this.path
-        // );
-
-        return this._yearPath;
+    get folderId() {
+        return this._folderId;
     }
-     set uploadPath(newPath) {
-        // console.log(
-        //     "PathManager: Setting path to",
-        //     newPath
-        // );
-        this._uploadPath = newPath;
+    set folderName(newId) {
+        this._folderName = newId;
     }
 
-    get uploadPath() {
-        // console.log(
-        //     "PathManager: Getting path:",
-        //     this.path
-        // );
-
-        return this._uploadPath;
-    }
-    set uploadFolderName(newPath) {
-        // console.log(
-        //     "PathManager: Setting path to",
-        //     newPath
-        // );
-        this._uploadFolderName = newPath;
+    get folderName() {
+        return this._folderName;
     }
 
-    get uploadFolderName() {
-        // console.log(
-        //     "PathManager: Getting path:",
-        //     this.path
-        // );
-
-        return this._uploadFolderName;
-    }
-    set deletedFileName(newPath) {
-        // console.log(
-        //     "PathManager: Setting path to",
-        //     newPath
-        // );
-        this._deletedName = newPath;
+    set folderPathText(text) {
+        this._folderPathText = text;
     }
 
-    get deletedFileName() {
-        // console.log(
-        //     "PathManager: Getting path:",
-        //     this.path
-        // );
-
-        return this._deletedName;
+    get folderPathText() {
+        return this._folderPathText;
     }
-    set datePathName(newPath) {
-        // console.log(
-        //     "PathManager: Setting path to",
-        //     newPath
-        // );
-        this._datePathName = newPath;
+    set jobsList(array) {
+        this._jobsList = array;
     }
 
-    get datePathName() {
-        // console.log(
-        //     "PathManager: Getting path:",
-        //     this.path
-        // );
-
-        return this._datePathName;
-    }
-    set folderPermission(newPath) {
-        // console.log(
-        //     "PathManager: Setting path to",
-        //     newPath
-        // );
-        this._folderPermission = newPath;
+    get jobsList() {
+        return this._jobsList;
     }
 
-    get folderPermission() {
-        // console.log(
-        //     "PathManager: Getting path:",
-        //     this.path
-        // );
+    addId(id, name = "") {
+        if (!id) return;
+        this._IdArray.push({ id, name });
+        console.log("Id Array: ", this._IdArray);
+    }
 
-        return this._folderPermission;
+    getLastId() {
+        const previous = this._IdArray.pop();
+        console.log("Id Array", this._IdArray);
+        return previous?.id || "";
+    }
+
+    getLastFolder() {
+        const previous = this._IdArray.pop();
+        console.log("Id Array", this._IdArray);
+        return previous || null;
+    }
+
+    canGoBack() {
+        return this._IdArray.length > 0;
+    }
+
+    clearFolderHistory() {
+        this._IdArray = [];
     }
 }
 

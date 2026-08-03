@@ -24,12 +24,16 @@ export default function UploadButtons() {
   const [failedNames, setFailedNames] = React.useState([]);
   const [displayedPath, setDisplayedPath] = React.useState("");
   
+
+
   //Success and uploadhandling Consts
   
   const [showSuccess, setShowSuccess] = React.useState(false);
   const [successState, setSuccessState] = React.useState("");
   const [uploading, setUploading] = React.useState(false);
   const [progress, setProgress] = React.useState({ done: 0, total: 0 });
+  const [fileProgress, setFileProgress] = React.useState({});
+  const [currentUpload, setCurrentUpload] = React.useState("");
   
   //Upload Consts
   const [showUploading, setShowUploading] = React.useState(false);
@@ -45,7 +49,7 @@ export default function UploadButtons() {
 
   //Upload File Sizes Consts
   const MAX_FILES = 50;
-  const LARGE_FILE_SIZE = 40 * 1024 * 320; // 4MB
+  const LARGE_FILE_SIZE = 300 * 1024 * 320; // 4MB
   let fileArray;
 
   const handleButtonClick = () => {fileInputRef.current.click();};
@@ -84,8 +88,12 @@ export default function UploadButtons() {
     try {
       if(file.size <= LARGE_FILE_SIZE)
       {
-        // encodeURIComponent handles spaces / special characters in file names
-        const url = `${pathManager.uploadPath}/${encodeURIComponent(file.name)}:/content`;
+        const uploadPath = pathManager.filePath;
+
+        const url =
+          `${uploadPath}:/${encodeURIComponent(file.name)}:/content`;
+
+        console.log("Upload URL:", url);
         const response = await fetch(url, {
           method: "PUT",
           body: file,
@@ -102,14 +110,21 @@ export default function UploadButtons() {
       else
       {
         const uploadUrl = await createUploadSession(
-          pathManager.uploadPath,
+          pathManager.filePath,
           file.name,
           accessToken
         );
-        console.log(pathManager.uploadPath);
+        console.log(pathManager.filePath);
+        setCurrentUpload(file.name);
         await uploadLargeFile(
           file,
-          uploadUrl
+          uploadUrl,
+           (percent) => {
+            setFileProgress(prev => ({
+              ...prev,
+              [file.name]: Math.round(percent * 100)
+            }));
+          }
         );
 
       }
@@ -138,7 +153,7 @@ export default function UploadButtons() {
     setProgress({ done: 0, total: files.length });
 
     // Swap the selection modal for the progress modal
-    setUploadFolderName(pathManager.uploadFolderName || "the selected folder");
+    setUploadFolderName(pathManager.folderName || "the selected folder");
     setShow(false);
     setShowUploading(true);
 
@@ -176,6 +191,7 @@ export default function UploadButtons() {
     // Refresh the gallery ONCE, after everything finished
     window.dispatchEvent(new CustomEvent("imagesChanged"));
     window.dispatchEvent(new CustomEvent("reloadFolders"));
+    window.dispatchEvent(new CustomEvent("showFiles"));
 
     setUploading(false);
     setSelectedFiles([]);
@@ -219,16 +235,16 @@ export default function UploadButtons() {
       
     };
 
-    const calenderEvent = (event =>{
+    const calendarEvent = (event =>{
       setShow(false);
     })
 
-    window.addEventListener("calendarOpened",calenderEvent);
+    window.addEventListener("calendarOpened",calendarEvent);
     window.addEventListener("dateAdded",handleEvent);
         return () => {
 
             window.removeEventListener("dateAdded",handleEvent);
-            window.removeEventListener("calendarOpened",handleEvent);
+            window.removeEventListener("calendarOpened",calendarEvent);
         };
   },[]);
   
@@ -243,9 +259,8 @@ export default function UploadButtons() {
         <Modal.Body style={{ whiteSpace: 'pre-line' }}>
           <b>Files selected:</b>
           {`\n${fileNames}\n`}
-          <b>Select upload folder:</b>
-          <DateSelection setShow={setShow}/>
-          
+          <b>Uploading to:</b>
+          {`\n${pathManager.folderPathText}`}
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={handleClose} disabled={uploading}>
@@ -268,9 +283,13 @@ export default function UploadButtons() {
           <Modal.Title>Uploading to {uploadFolderName}</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <div>
+          <h3>
             Uploading {progress.done} of {progress.total} file
             {progress.total === 1 ? "" : "s"}…
+          </h3>
+          <div>
+            Current file:
+            <b> {currentUpload}</b>
           </div>
           <div
             style={{
@@ -285,14 +304,16 @@ export default function UploadButtons() {
               style={{
                 height: "100%",
                 width: `${
-                  progress.total
-                    ? Math.round((progress.done / progress.total) * 100)
-                    : 0
+                  fileProgress[currentUpload] || 0
                 }%`,
                 background: "#1976d2",
                 transition: "width 0.2s ease",
               }}
             />
+          </div>
+
+          <div>
+            {fileProgress[currentUpload] || 0}%
           </div>
         </Modal.Body>
       </Modal>

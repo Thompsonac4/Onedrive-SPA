@@ -10,11 +10,11 @@
  */
 
 const FRAGMENT_SIZE = 320 * 1024; // 320 KiB — Graph requirement
-const CHUNK_SIZE = FRAGMENT_SIZE * 10; // 3.2 MiB per request (reliable on flaky links)
+const CHUNK_SIZE = FRAGMENT_SIZE * 300; // 3.2 MiB per request (reliable on flaky links)
 const MAX_RETRIES = 4;
 
 export async function createUploadSession(folderPath, fileName, accessToken) {
-  const url = `${folderPath}/${encodeURIComponent(fileName)}:/createUploadSession`;
+  const url = `${folderPath}:/${encodeURIComponent(fileName)}:/createUploadSession`;
 
   const response = await fetch(url, {
     method: "POST",

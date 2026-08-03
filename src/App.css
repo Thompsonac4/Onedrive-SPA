@@ -203,19 +203,19 @@
     display: flex !important;
     flex-direction: row !important;
     flex-wrap: nowrap !important;
-    gap: 15px !important;
+    gap: 12px !important;
     overflow-x: auto !important;
     width: 100% !important;
-    padding: 15px !important;
+    padding: 10px !important;
     align-items: center !important;
 }
 .thumbnail {
     position: relative !important;
     display: flex !important;
     flex-direction: column !important;
-    flex: 0 0 250px !important;
-    width: 250px !important;
-    height: 200px !important;
+    flex: 0 0 190px !important;
+    width: 190px !important;
+    height: 150px !important;
     overflow: hidden !important;
     background: #004bcc99;
     margin: 0 !important;
@@ -224,7 +224,7 @@
     position: relative !important;
     display: block !important;
     width:100% !important;
-    height:160px !important;
+    height:112px !important;
     object-fit:cover;
 }
 .thumbnail p {
@@ -249,9 +249,29 @@
 }
 .container {
   width: 100%;    
-  height: 90vh;  
+  height: 99vh;  
 }
 .dropdown-menu {
   max-height: 30vh;
-  overflow-y: scroll;
+}
+.jobsite-selection-header {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
+
+.jobsite-selection-title {
+  margin: 0;
+}
+
+.jobsite-selection-header .MuiButton-root {
+  position: absolute;
+  right: 28px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 0.75rem;
+  padding: 4px 10px;
+  min-width: 0;
 }
