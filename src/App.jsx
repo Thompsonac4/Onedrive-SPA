@@ -230,15 +230,20 @@ export default function App() {
         <DateDropdown />
       </section> */}
 
-      {showFiles && <section className="card">
+      {showFiles && <section className="card files-card">
         <h2 className="files-heading">
           <span>Files in</span>
           <span className="files-heading-folder">{folderName}</span>
         </h2>
         <ImageContainer />
+        {showUpload && (
+          <div className="upload upload-inline">
+            <Upload />
+          </div>
+        )}
       </section>}
 
-      {showUpload && <section className="card upload">
+      {showUpload && !showFiles && <section className="card upload">
         <h2>Upload Files:</h2>
         <Upload />
       </section> }

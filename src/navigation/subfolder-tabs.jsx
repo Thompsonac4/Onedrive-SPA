@@ -232,12 +232,9 @@ export default function SubfolderTabs() {
                         }
                 }
   return (
-    <div className="SubfolderTabs">
-      {showNoFolders ? (
-        <p className="subfolder-empty"></p>
-      ) : (
+    <div className={`SubfolderTabs${showNoFolders ? " SubfolderTabs--empty" : ""}`}>
+      {!showNoFolders && (
         <Tabs
-            fill
             id="jobsite-tabs"
             activeKey={selectedFolder}// Controls which tab is highlighted
             onSelect={(value) => handleSelect(value)}// Fires whenever user clicks a tab
