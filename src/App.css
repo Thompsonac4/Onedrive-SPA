@@ -206,15 +206,18 @@
     gap: 12px !important;
     overflow-x: auto !important;
     width: 100% !important;
+    max-width: 100% !important;
     padding: 10px !important;
     align-items: center !important;
+    -webkit-overflow-scrolling: touch;
 }
 .thumbnail {
     position: relative !important;
     display: flex !important;
     flex-direction: column !important;
-    flex: 0 0 190px !important;
-    width: 190px !important;
+    flex: 0 0 min(190px, 80vw) !important;
+    width: min(190px, 80vw) !important;
+    max-width: 100% !important;
     height: 150px !important;
     overflow: hidden !important;
     background: #004bcc99;

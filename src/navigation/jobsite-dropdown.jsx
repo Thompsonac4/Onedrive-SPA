@@ -78,7 +78,7 @@ async function loadFolders() {
         year.jobs.map(job => ({
           year: year.year,
           id: job.id,
-          name: job.name,
+          name: job.name.substring(5),
           permissions: job.permissions.flatMap(permission =>
             permission.identities.map(identity => ({
               id: identity.id,
@@ -110,7 +110,7 @@ async function loadFolders() {
       .map(job => ({
         id: job.id,
         driveId: job.driveId,
-        name: job.name.substring(5),
+        name: job.name,
         year: job.year,
       }));
       

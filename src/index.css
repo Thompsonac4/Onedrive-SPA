@@ -33,6 +33,7 @@ body {
   width: 100%;
   max-width: 1000px;
   margin: auto;
+  min-width: 0;
 }
 
 .login-error {
@@ -89,7 +90,8 @@ h1 {
 .jobsite-selection-card {
   display: flex;
   flex-direction: column;
-  height: calc(100dvh - 150px);
+  /* max-height (not fixed height) so browser zoom doesn't clip the card */
+  max-height: calc(100dvh - 150px);
   min-height: 420px;
   overflow: hidden;
 }
@@ -101,17 +103,20 @@ h1 {
   overflow-x: hidden;
   overflow-y: auto;
   scrollbar-gutter: stable;
+  -webkit-overflow-scrolling: touch;
 }
 
 .jobsite-selection-card .jobsite-tabs {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  /* Single full-width column so long jobsite names fit */
+  grid-template-columns: minmax(0, 1fr);
   align-content: start;
-  max-height: calc((3 * var(--jobsite-tab-height)) + (2 * var(--tab-gap)));
+  max-height: calc((4 * var(--jobsite-tab-height)) + (3 * var(--tab-gap)));
   padding-right: 6px;
   overflow-x: hidden;
   overflow-y: auto;
   scrollbar-gutter: stable;
+  -webkit-overflow-scrolling: touch;
 }
 
 .jobsite-selection-card .jobsite-tabs .nav-link {
@@ -119,6 +124,7 @@ h1 {
   min-height: 0;
   overflow: hidden;
   text-wrap: balance;
+  word-break: break-word;
 }
 
 .jobsite-selection-card .accordion-body {
@@ -243,12 +249,12 @@ h1 {
 }
 
 .card .nav-tabs .nav-item {
-  flex: 1 1 calc(50% - 5px);
-  min-width: 150px;
+  flex: 1 1 100%;
+  min-width: 0;
+  max-width: 100%;
 }
 
-/* Jobsite tabs: always 2 columns. Override the shared 150px min-width that
-   forces a single column on narrow phones. */
+/* Jobsite tabs: single full-width column for readable names */
 .jobsite-selection-card .jobsite-tabs .nav-item {
   flex: none;
   min-width: 0;
@@ -271,7 +277,9 @@ h1 {
   font-weight: 600;
   line-height: 1.25;
   text-align: center;
+  white-space: normal;
   overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .card .nav-tabs .nav-link.active {
@@ -287,18 +295,25 @@ h1 {
 
 
 .SubfolderTabs .nav-tabs {
+  display: flex;
+  flex-direction: column;
+  flex-wrap: nowrap;
   align-content: flex-start;
-  /* Exactly 3 rows of equal-height tabs, then scroll */
-  max-height: calc((3 * var(--tab-height)) + (2 * var(--tab-gap)));
+  /* Single-wide tabs: show 2, scroll/swipe for the rest */
+  max-height: calc((2 * var(--tab-height)) + var(--tab-gap));
   padding-right: 6px;
   overflow-x: hidden;
   overflow-y: auto;
   scrollbar-gutter: stable;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
 }
 
 .SubfolderTabs .nav-tabs .nav-item {
-  flex: 0 0 calc(50% - (var(--tab-gap) / 2));
+  flex: 0 0 auto;
+  width: 100%;
   min-width: 0;
+  max-width: 100%;
   height: var(--tab-height);
 }
 
@@ -307,6 +322,7 @@ h1 {
   min-height: 0;
   overflow: hidden;
   text-wrap: balance;
+  word-break: break-word;
 }
 
 .accordion-button {
@@ -359,11 +375,7 @@ h1 {
 }
 
 .subfolder-empty {
-  padding: 28px 12px;
-  color: #687786;
-  font-size: 1.5rem;
-  font-weight: 600;
-  text-align: center;
+  display: none;
 }
 
 .subfolder-footer {
@@ -372,6 +384,24 @@ h1 {
   justify-content: space-between;
   gap: 12px;
   margin-top: 20px;
+}
+
+.SubfolderTabs--empty .subfolder-footer {
+  margin-top: 0;
+}
+
+/* Upload sits directly under the thumbnail strip when files are visible */
+.files-card .upload-inline {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid #e5eaf0;
+  text-align: center;
+}
+
+.files-card .upload-inline .MuiButton-root,
+.files-card .upload-inline .btn {
+  width: 100%;
+  max-width: 320px;
 }
 
 /* Placeholder tile for files we don't render inline */
@@ -403,8 +433,9 @@ h1 {
   text-align: center;
 }
 .thumbnail {
-    flex: 0 0 250px;
-    width:250px;
+    flex: 0 0 min(250px, 85vw);
+    width: min(250px, 85vw);
+    max-width: 100%;
     height:240px;
     border-radius:10px;
     border:1px solid #ddd;
@@ -423,7 +454,9 @@ h1 {
     gap:16px;
     overflow-x:auto;
     width:100%;
+    max-width:100%;
     padding:10px;
+    -webkit-overflow-scrolling: touch;
 }
 .thumbnail-image {
     width:100%;
@@ -460,7 +493,7 @@ h1 {
   }
 
   .jobsite-selection-card {
-    height: calc(100dvh - 130px);
+    max-height: calc(100dvh - 130px);
   }
 }
 
@@ -510,6 +543,9 @@ h1 {
   .card {
     padding: 14px;
     border-radius: 10px;
+    /* Avoid horizontal clipping when the user zooms in heavily */
+    max-width: 100%;
+    overflow-x: hidden;
   }
 
   .card h2 {
@@ -517,14 +553,23 @@ h1 {
     margin-bottom: 14px;
   }
 
+  .path-heading,
+  .files-heading {
+    gap: 6px;
+    padding-bottom: 10px;
+    font-size: 16px;
+    word-break: break-word;
+    overflow-wrap: anywhere;
+  }
+
   /* Keep touch targets tall on phones, just tighten the horizontal padding */
   .card .nav-tabs .nav-link {
-    padding: 12px 8px;
+    padding: 12px 10px;
   }
 
   .jobsite-selection-card {
-    height: calc(100dvh - 155px);
-    min-height: 360px;
+    max-height: calc(100dvh - 155px);
+    min-height: 0;
   }
 
   .jobsite-selection-card .jobsite-selection-header {
@@ -538,6 +583,34 @@ h1 {
 
   .jobsite-selection-header .MuiButton-root {
     right: 18px;
+  }
+
+  .jobsite-nav-bar {
+    margin-bottom: 12px;
+  }
+
+  .jobsite-nav-bar .MuiButton-root,
+  .jobsite-nav-bar .btn {
+    min-height: 56px;
+    padding: 14px 18px;
+    font-size: 17px;
+  }
+
+  .subfolder-footer {
+    margin-top: 14px;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .subfolder-footer .MuiButton-root,
+  .subfolder-footer .btn {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  .files-card .upload-inline {
+    margin-top: 8px;
+    padding-top: 8px;
   }
 
   /* Carousel: smaller arrows, one tile visible with a peek */
@@ -559,6 +632,12 @@ h1 {
   .thumbnail,
   .file-placeholder {
     height: 200px;
+  }
+
+  .thumbnail-strip {
+    gap: 12px;
+    padding: 6px 0;
+    -webkit-overflow-scrolling: touch;
   }
 
   .file-icon {
